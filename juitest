@@ -1,0 +1,19 @@
+lua
+-- 1. Initialize Junkie SDK
+local Junkie = loadstring(game:HttpGet("https://jnkie.com/sdk/library.lua"))()
+
+-- 2. Configure SDK (Use your Dashboard values)
+Junkie.service = "jui"
+Junkie.identifier = "YOUR_IDENTIFIER_ID" -- Your user ID from dashboard
+Junkie.provider = "juix dev"
+
+-- 3. Check Key
+local key = getgenv().SCRIPT_KEY -- Or however your UI passes the key
+local result = Junkie.check_key(key)
+
+if result and result.valid then
+    -- 4. Key is valid! Load your MAIN script here
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/juixcx/jui-99/refs/heads/jui/jui%20beta"))()
+else
+    print("Invalid Key or Error: " .. tostring(result and result.error))
+end
