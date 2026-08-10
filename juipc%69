@@ -800,7 +800,7 @@ local function performTeleport()
     X = aG.Y
     
     local aH = Instance.new("Sound")
-    aH.SoundId = "rbxassetid://95298029662868"
+    aH.SoundId = "rbxassetid://74715602103425"
     aH.Volume = 1
     aH.PlayOnRemove = true
     aH.Parent = u
