@@ -211,7 +211,7 @@ if A then
     })
 
     Window:Tag({
-        Title = "Juix Hub 2.1 | Premium",
+        Title = "Juix Hub PC 2.1 | Premium",
         Icon = "",
         Color = Color3.fromHex("#FFD700"),
         Radius = 13,
@@ -438,7 +438,7 @@ local function setupCharacter(aD)
         jumpHighStateConnection = Humanoid.StateChanged:Connect(function(_, newState)
             if newState == Enum.HumanoidStateType.Jumping then
                 if jumpHighEnabled and RootPart then
-                    RootPart.Velocity = Vector3.new(RootPart.Velocity.X, 70, RootPart.Velocity.Z)
+                    RootPart.Velocity = Vector3.new(RootPart.Velocity.X, 50, RootPart.Velocity.Z)
                 end
             end
         end)
