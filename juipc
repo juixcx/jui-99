@@ -184,7 +184,7 @@ if A then
     })
 
     B:Tag({
-        Title = "Juix Hub 2.1 | Premium",
+        Title = "Juix Hub Pc 2.1 | Premium",
         Icon = "",
         Color = Color3.fromHex("#FFD700"),
         Radius = 13,
