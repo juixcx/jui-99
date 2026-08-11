@@ -41,7 +41,7 @@ local z = d.TouchEnabled and not d.KeyboardEnabled
 local function PlaySound(SoundId, Volume)
     local Sound = Instance.new("Sound")
     Sound.SoundId = "rbxassetid://" .. SoundId
-    Sound.Volume = Volume or 1
+    Sound.Volume = Volume or 4
     Sound.Parent = g
     Sound:Play()
     task.delay(2, function()
