@@ -1,0 +1,608 @@
+--[[\
+    Juix Hub Key System UI + Auto Login & HWID Check + Updated Loadstring (`juipc`) + Expanded Mass Keys
+]]--
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local AnalyticsService = game:GetService("RbxAnalyticsService")
+
+local Player = Players.LocalPlayer
+local HWID = AnalyticsService:GetClientId()
+
+local SaveFileName = "JuixHub_KeyData.json"
+local ExpiredListFileName = "JuixHub_ExpiredKeys.json"
+
+-- รายการคีย์ทั้งหมด (วินาที)
+local ValidKeys = {
+    -- คีย์ทดสอบ 30 วินาที (25 คีย์)
+    ["jui-yest"] = 30,
+    ["jui-test-a1x2z"] = 30,
+    ["jui-test-b3c4v"] = 30,
+    ["jui-test-c5n6m"] = 30,
+    ["jui-test-d7k8l"] = 30,
+    ["jui-test-e9p0q"] = 30,
+    ["jui-test-f2w4h"] = 30,
+    ["jui-test-g5j7c"] = 30,
+    ["jui-test-h8v1z"] = 30,
+    ["jui-test-i3k6x"] = 30,
+    ["jui-test-j6t9n"] = 30,
+    ["jui-test-k1l5m"] = 30,
+    ["jui-test-l4r8s"] = 30,
+    ["jui-test-m7q2w"] = 30,
+    ["jui-test-n0b3v"] = 30,
+    ["jui-test-o2x5c"] = 30,
+    ["jui-test-p5z8b"] = 30,
+    ["jui-test-q8d1n"] = 30,
+    ["jui-test-r1f4m"] = 30,
+    ["jui-test-s4g7k"] = 30,
+    ["jui-test-t7h0p"] = 30,
+    ["jui-test-u9j2l"] = 30,
+    ["jui-test-v2k5w"] = 30,
+    ["jui-test-w5l8q"] = 30,
+    ["jui-test-x8m1z"] = 30,
+
+    -- 5 ชั่วโมง (18,000 วินาที) - 40 คีย์
+    ["jui-5hour-jqezgwz"] = 18000,
+    ["jui-5hour-a1x9m4q"] = 18000,
+    ["jui-5hour-b8v5h2k"] = 18000,
+    ["jui-5hour-c3f7l1w"] = 18000,
+    ["jui-5hour-d4s6r8z"] = 18000,
+    ["jui-5hour-e7p2q5j"] = 18000,
+    ["jui-5hour-f1w9h3m"] = 18000,
+    ["jui-5hour-g6j4c7n"] = 18000,
+    ["jui-5hour-h2v8z9b"] = 18000,
+    ["jui-5hour-i5k3x1p"] = 18000,
+    ["jui-5hour-j9t7n4q"] = 18000,
+    ["jui-5hour-k3l8x2m"] = 18000,
+    ["jui-5hour-l6n1v5h"] = 18000,
+    ["jui-5hour-m2q9c4f"] = 18000,
+    ["jui-5hour-n8r3s7d"] = 18000,
+    ["jui-5hour-p5w1p6j"] = 18000,
+    ["jui-5hour-q9h4w8k"] = 18000,
+    ["jui-5hour-r1c7j2v"] = 18000,
+    ["jui-5hour-s6z5b3n"] = 18000,
+    ["jui-5hour-t4x8m1p"] = 18000,
+    ["jui-5hour-u2v7h9k"] = 18000,
+    ["jui-5hour-v5n3c1w"] = 18000,
+    ["jui-5hour-w8f4d2z"] = 18000,
+    ["jui-5hour-x1s9r6j"] = 18000,
+    ["jui-5hour-y4p2q8x"] = 18000,
+    ["jui-5hour-z7w6h1t"] = 18000,
+    ["jui-5hour-a9j3c5n"] = 18000,
+    ["jui-5hour-b2v8z4b"] = 18000,
+    ["jui-5hour-c5k1x7p"] = 18000,
+    ["jui-5hour-d8t4n2q"] = 18000,
+    ["jui-5hour-e3l9x5m"] = 18000,
+    ["jui-5hour-f6n2v1h"] = 18000,
+    ["jui-5hour-g9q7c4f"] = 18000,
+    ["jui-5hour-h1r5s8d"] = 18000,
+    ["jui-5hour-i4w8p2j"] = 18000,
+    ["jui-5hour-j7h1w6k"] = 18000,
+    ["jui-5hour-k9c3j5v"] = 18000,
+    ["jui-5hour-l2z6b8n"] = 18000,
+    ["jui-5hour-m5x4m9p"] = 18000,
+    ["jui-5hour-n8v2h1q"] = 18000,
+    
+    -- 1 วัน (86,400 วินาที) - 40 คีย์
+    ["jui-1day-Gxjki7"] = 86400,
+    ["jui-1day-a9x8k2p"] = 86400,
+    ["jui-1day-m4b7v1q"] = 86400,
+    ["jui-1day-k8z3l5w"] = 86400,
+    ["jui-1day-t2y6n9r"] = 86400,
+    ["jui-1day-c5f1h4j"] = 86400,
+    ["jui-1day-d7s2x8v"] = 86400,
+    ["jui-1day-p3q9m6b"] = 86400,
+    ["jui-1day-w1k4t7l"] = 86400,
+    ["jui-1day-f6h8c2n"] = 86400,
+    ["jui-1day-v9r5d3z"] = 86400,
+    ["jui-1day-x1q4m7p"] = 86400,
+    ["jui-1day-y8h2v5k"] = 86400,
+    ["jui-1day-z3f6l1w"] = 86400,
+    ["jui-1day-e4s9r8z"] = 86400,
+    ["jui-1day-u7p1q5j"] = 86400,
+    ["jui-1day-i2w6h3m"] = 86400,
+    ["jui-1day-o5j4c7n"] = 86400,
+    ["jui-1day-n1v8z9b"] = 86400,
+    ["jui-1day-q6k3x1p"] = 86400,
+    ["jui-1day-u2x5n8q"] = 86400,
+    ["jui-1day-v4v1h3k"] = 86400,
+    ["jui-1day-w8f7l2w"] = 86400,
+    ["jui-1day-x6s9r1z"] = 86400,
+    ["jui-1day-y1p4q7j"] = 86400,
+    ["jui-1day-z7w2h5m"] = 86400,
+    ["jui-1day-a3j9c8n"] = 86400,
+    ["jui-1day-b5v6z1b"] = 86400,
+    ["jui-1day-c9k8x4p"] = 86400,
+    ["jui-1day-d2t7n4q"] = 86400,
+    ["jui-1day-e6l3x2m"] = 86400,
+    ["jui-1day-f9n1v5h"] = 86400,
+    ["jui-1day-g2q4c4f"] = 86400,
+    ["jui-1day-h4r3s7d"] = 86400,
+    ["jui-1day-i8w1p6j"] = 86400,
+    ["jui-1day-j1h4w8k"] = 86400,
+    ["jui-1day-k5c7j2v"] = 86400,
+    ["jui-1day-l9z5b3n"] = 86400,
+    ["jui-1day-m3x8m1p"] = 86400,
+    ["jui-1day-n7v9h2q"] = 86400,
+
+    -- 2 วัน (172,800 วินาที) - 40 คีย์
+    ["jui-2day-jgibk"] = 172800,
+    ["jui-2day-m8x3k1p"] = 172800,
+    ["jui-2day-t4v9h2q"] = 172800,
+    ["jui-2day-c7n1b6w"] = 172800,
+    ["jui-2day-d2f5l8z"] = 172800,
+    ["jui-2day-s9r4k3j"] = 172800,
+    ["jui-2day-p1q7v5x"] = 172800,
+    ["jui-2day-w8h6m9t"] = 172800,
+    ["jui-2day-j3c2f7n"] = 172800,
+    ["jui-2day-v5z1d4b"] = 172800,
+    ["jui-2day-k9x8m2p"] = 172800,
+    ["jui-2day-a2x5n7q"] = 172800,
+    ["jui-2day-b4v1h9k"] = 172800,
+    ["jui-2day-c8f3l2w"] = 172800,
+    ["jui-2day-d6s9r1z"] = 172800,
+    ["jui-2day-e1p4q7j"] = 172800,
+    ["jui-2day-f7w2h5m"] = 172800,
+    ["jui-2day-g9j3c8n"] = 172800,
+    ["jui-2day-h5v6z1b"] = 172800,
+    ["jui-2day-i3k8x4p"] = 172800,
+    ["jui-2day-u1x4m9q"] = 172800,
+    ["jui-2day-v8v2h5k"] = 172800,
+    ["jui-2day-w3f9l1w"] = 172800,
+    ["jui-2day-x6s8r4z"] = 172800,
+    ["jui-2day-y7p5q2j"] = 172800,
+    ["jui-2day-z1w3h8m"] = 172800,
+    ["jui-2day-a9j6c2n"] = 172800,
+    ["jui-2day-b4v7z1b"] = 172800,
+    ["jui-2day-c2k5x9p"] = 172800,
+    ["jui-2day-d5t2n4q"] = 172800,
+    ["jui-2day-e8l7x2m"] = 172800,
+    ["jui-2day-f3n1v5h"] = 172800,
+    ["jui-2day-g6q4c4f"] = 172800,
+    ["jui-2day-h1r3s7d"] = 172800,
+    ["jui-2day-i4w1p6j"] = 172800,
+    ["jui-2day-j7h4w8k"] = 172800,
+    ["jui-2day-k2c7j2v"] = 172800,
+    ["jui-2day-l5z5b3n"] = 172800,
+    ["jui-2day-m9x8m1p"] = 172800,
+    ["jui-2day-n4v9h2q"] = 172800,
+
+    -- 3 วัน (259,200 วินาที) - 40 คีย์
+    ["jui-3day-x4k2m9p"] = 259200,
+    ["jui-3day-h7v1h8q"] = 259200,
+    ["jui-3day-b3n6c5w"] = 259200,
+    ["jui-3day-f9f2d1z"] = 259200,
+    ["jui-3day-s2r8k7j"] = 259200,
+    ["jui-3day-p5q3v6x"] = 259200,
+    ["jui-3day-w1h7m2t"] = 259200,
+    ["jui-3day-j8c4f9n"] = 259200,
+    ["jui-3day-v6z3d5b"] = 259200,
+    ["jui-3day-t9k2x1p"] = 259200,
+    ["jui-3day-a1x9m4q"] = 259200,
+    ["jui-3day-b8v5h2k"] = 259200,
+    ["jui-3day-c3f7l1w"] = 259200,
+    ["jui-3day-d4s6r8z"] = 259200,
+    ["jui-3day-e7p2q5j"] = 259200,
+    ["jui-3day-f1w9h3m"] = 259200,
+    ["jui-3day-g6j4c7n"] = 259200,
+    ["jui-3day-h2v8z9b"] = 259200,
+    ["jui-3day-i5k3x1p"] = 259200,
+    ["jui-3day-j9t7n4q"] = 259200,
+    ["jui-3day-u4x2m8q"] = 259200,
+    ["jui-3day-v1v5h7k"] = 259200,
+    ["jui-3day-w8f3l9w"] = 259200,
+    ["jui-3day-x2s6r4z"] = 259200,
+    ["jui-3day-y9p1q5j"] = 259200,
+    ["jui-3day-z3w7h2m"] = 259200,
+    ["jui-3day-a5j8c1n"] = 259200,
+    ["jui-3day-b6v4z3b"] = 259200,
+    ["jui-3day-c1k9x7p"] = 259200,
+    ["jui-3day-d7t2n5q"] = 259200,
+    ["jui-3day-e2l6x3m"] = 259200,
+    ["jui-3day-f5n9v2h"] = 259200,
+    ["jui-3day-g8q1c7f"] = 259200,
+    ["jui-3day-h3r4s9d"] = 259200,
+    ["jui-3day-i6w2p1j"] = 259200,
+    ["jui-3day-j1h5w4k"] = 259200,
+    ["jui-3day-k4c8j3v"] = 259200,
+    ["jui-3day-l7z1b6n"] = 259200,
+    ["jui-3day-m9x5m2p"] = 259200,
+    ["jui-3day-n2v3h8q"] = 259200,
+
+    -- 7 วัน (604,800 วินาที) - 40 คีย์
+    ["jui-7day-hjkity7"] = 604800,
+    ["jui-7day-hdcv"] = 604800,
+    ["jui-7day-iphvh"] = 604800,
+    ["jui-7day-dgufv"] = 604800,
+    ["jui-7day-vzgbb"] = 604800,
+    ["jui-7day-xgghk"] = 604800,
+    ["jui-7day-hdcv9x1"] = 604800,
+    ["jui-7day-iphvh4m"] = 604800,
+    ["jui-7day-dgufv8k"] = 604800,
+    ["jui-7day-vzgbb2t"] = 604800,
+    ["jui-7day-xgghk5p"] = 604800,
+    ["jui-7day-a1x4m9q"] = 604800,
+    ["jui-7day-b8v2h5k"] = 604800,
+    ["jui-7day-c3f9l1w"] = 604800,
+    ["jui-7day-d6s8r4z"] = 604800,
+    ["jui-7day-e7p5q2j"] = 604800,
+    ["jui-7day-f1w3h8m"] = 604800,
+    ["jui-7day-g9j6c2n"] = 604800,
+    ["jui-7day-h4v7z1b"] = 604800,
+    ["jui-7day-i2k5x9p"] = 604800,
+    ["jui-7day-u5x2m6q"] = 604800,
+    ["jui-7day-v9v1h3k"] = 604800,
+    ["jui-7day-w4f8l7w"] = 604800,
+    ["jui-7day-x1s3r9z"] = 604800,
+    ["jui-7day-y6p2q4j"] = 604800,
+    ["jui-7day-z8w7h5m"] = 604800,
+    ["jui-7day-a3j1c8n"] = 604800,
+    ["jui-7day-b5v4z9b"] = 604800,
+    ["jui-7day-c7k2x3p"] = 604800,
+    ["jui-7day-d2t9n1q"] = 604800,
+    ["jui-7day-e4l6x8m"] = 604800,
+    ["jui-7day-f8n3v2h"] = 604800,
+    ["jui-7day-g1q7c5f"] = 604800,
+    ["jui-7day-h6r4s1d"] = 604800,
+    ["jui-7day-i9w8p3j"] = 604800,
+    ["jui-7day-j3h2w6k"] = 604800,
+    ["jui-7day-k5c9j4v"] = 604800,
+    ["jui-7day-l8z1b7n"] = 604800,
+    ["jui-7day-m2x6m9p"] = 604800,
+    ["jui-7day-n7v3h5q"] = 604800,
+
+    -- 15 วัน (1,296,000 วินาที) - 40 คีย์
+    ["jui-15day-afseg7"] = 1296000,
+    ["jui-15day-k2x9m4p"] = 1296000,
+    ["jui-15day-t7v1h8q"] = 1296000,
+    ["jui-15day-c3n6b5w"] = 1296000,
+    ["jui-15day-d9f2l1z"] = 1296000,
+    ["jui-15day-s4r8k7j"] = 1296000,
+    ["jui-15day-p6q3v9x"] = 1296000,
+    ["jui-15day-w5h1m2t"] = 1296000,
+    ["jui-15day-j8c7f4n"] = 1296000,
+    ["jui-15day-v1z9d6b"] = 1296000,
+    ["jui-15day-a4x2m8q"] = 1296000,
+    ["jui-15day-b1v5h7k"] = 1296000,
+    ["jui-15day-c8f3l9w"] = 1296000,
+    ["jui-15day-d2s6r4z"] = 1296000,
+    ["jui-15day-e9p1q5j"] = 1296000,
+    ["jui-15day-f3w7h2m"] = 1296000,
+    ["jui-15day-g5j8c1n"] = 1296000,
+    ["jui-15day-h6v4z3b"] = 1296000,
+    ["jui-15day-i1k9x7p"] = 1296000,
+    ["jui-15day-j7t2n5q"] = 1296000,
+    ["jui-15day-u3x7m1q"] = 1296000,
+    ["jui-15day-v6v2h8k"] = 1296000,
+    ["jui-15day-w1f4l9w"] = 1296000,
+    ["jui-15day-x8s5r2z"] = 1296000,
+    ["jui-15day-y2p9q6j"] = 1296000,
+    ["jui-15day-z7w3h1m"] = 1296000,
+    ["jui-15day-a9j4c5n"] = 1296000,
+    ["jui-15day-b4v8z2b"] = 1296000,
+    ["jui-15day-c1k6x9p"] = 1296000,
+    ["jui-15day-d5t1n4q"] = 1296000,
+    ["jui-15day-e8l4x7m"] = 1296000,
+    ["jui-15day-f2n9v3h"] = 1296000,
+    ["jui-15day-g7q1c8f"] = 1296000,
+    ["jui-15day-h3r6s2d"] = 1296000,
+    ["jui-15day-i9w5p4j"] = 1296000,
+    ["jui-15day-j4h8w1k"] = 1296000,
+    ["jui-15day-k6c2j9v"] = 1296000,
+    ["jui-15day-l1z7b5n"] = 1296000,
+    ["jui-15day-m5x3m8p"] = 1296000,
+    ["jui-15day-n8v6h2q"] = 1296000,
+
+    -- 30 วัน (2,592,000 วินาที) - 40 คีย์
+    ["jui-30day-hgiyfx8"] = 2592000,
+    ["jui-30day-m2k5p9x"] = 2592000,
+    ["jui-30day-t8v4h1q"] = 2592000,
+    ["jui-30day-c6n3b7w"] = 2592000,
+    ["jui-30day-d1f9l2z"] = 2592000,
+    ["jui-30day-s7r5k8j"] = 2592000,
+    ["jui-30day-p4q1v6x"] = 2592000,
+    ["jui-30day-w9h2m3t"] = 2592000,
+    ["jui-30day-j5c8f1n"] = 2592000,
+    ["jui-30day-v3z7d9b"] = 2592000,
+    ["jui-30day-a2x6m4q"] = 2592000,
+    ["jui-30day-b9v1h5k"] = 2592000,
+    ["jui-30day-c4f8l3w"] = 2592000,
+    ["jui-30day-d7s2r9z"] = 2592000,
+    ["jui-30day-e1p5q6j"] = 2592000,
+    ["jui-30day-f8w3h2m"] = 2592000,
+    ["jui-30day-g2j9c7n"] = 2592000,
+    ["jui-30day-h5v1z8b"] = 2592000,
+    ["jui-30day-i3k6x4p"] = 2592000,
+    ["jui-30day-j6t9n1q"] = 2592000,
+    ["jui-30day-u4x1m9q"] = 2592000,
+    ["jui-30day-v8v5h2k"] = 2592000,
+    ["jui-30day-w3f7l1w"] = 2592000,
+    ["jui-3day-x6s4r8z"] = 2592000,
+    ["jui-3day-y1p2q5j"] = 2592000,
+    ["jui-3day-z7w9h3m"] = 2592000,
+    ["jui-3day-a5j4c2n"] = 2592000,
+    ["jui-3day-b2v7z1b"] = 2592000,
+    ["jui-3day-c9k3x8p"] = 2592000,
+    ["jui-3day-d4t8n6q"] = 2592000,
+    ["jui-3day-e6l2x1m"] = 2592000,
+    ["jui-3day-f1n5v9h"] = 2592000,
+    ["jui-3day-g3q8c4f"] = 2592000,
+    ["jui-3day-h7r2s5d"] = 2592000,
+    ["jui-3day-i2w9p6j"] = 2592000,
+    ["jui-3day-j8h3w4k"] = 2592000,
+    ["jui-3day-k1c6j7v"] = 2592000,
+    ["jui-3day-l5z4b2n"] = 2592000,
+    ["jui-3day-m9x1m5p"] = 2592000,
+    ["jui-3day-n3v8h9q"] = 2592000,
+
+    -- ถาวร / แอดมิน (-1 คือไม่หมดอายุ)
+    ["juix-paid-gcfdh78"] = -1,
+    ["juix-addmin-devjuihub"] = -1
+}
+
+local function LoadData(filename)
+    if writefile and readfile and isfile and isfile(filename) then
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(readfile(filename))
+        end)
+        if success then return data end
+    end
+    return nil
+end
+
+local function SaveData(filename, data)
+    if writefile then
+        writefile(filename, HttpService:JSONEncode(data))
+    end
+end
+
+-- เช็คว่าคีย์นี้เคยหมดอายุไปแล้วหรือยัง (ขึ้นบัญชีดำไว้)
+local function IsKeyBlacklisted(key)
+    local expiredData = LoadData(ExpiredListFileName)
+    if expiredData and expiredData[key] then
+        return true
+    end
+    return false
+end
+
+-- บันทึกว่าคีย์นี้หมดอายุแล้ว ห้ามใช้ซ้ำ
+local function BlacklistKey(key)
+    local expiredData = LoadData(ExpiredListFileName) or {}
+    expiredData[key] = true
+    SaveData(ExpiredListFileName, expiredData)
+end
+
+-- ฟังก์ชันรันสคริปต์หลักและแสดงเวลาที่มุมซ้ายล่าง
+local function RunMainScript(key, expireTime)
+    print("Juix Hub: กำลังโหลดสคริปต์ PC...")
+    
+    -- ใช้ task.spawn แทน coroutine.wrap เพื่อหลีกเลี่ยงปัญหา
+    task.spawn(function()
+        local success, err = pcall(function()
+            local scriptContent = game:HttpGet("https://raw.githubusercontent.com/juixcx/jui-99/refs/heads/jui-pc/juipc")
+            
+            -- ตรวจสอบว่า loadstring มีอยู่หรือไม่
+            if loadstring then
+                local loadedScript = loadstring(scriptContent)
+                if loadedScript then
+                    loadedScript()
+                else
+                    -- ถ้า loadstring ล้มเหลว ลองใช้วิธีอื่น
+                    print("Juix Hub: loadstring failed, trying alternative method...")
+                    local func = loadstring or load
+                    if func then
+                        func(scriptContent)()
+                    end
+                end
+            else
+                -- ถ้าไม่มี loadstring เลย (Roblox ใหม่)
+                print("Juix Hub: loadstring not available, using alternative method...")
+                -- ลองใช้วิธีอื่นที่ executor รองรับ
+                if syn and syn.protect_gui then
+                    -- สำหรับ Synapse X
+                    local func = loadstring or load
+                    if func then
+                        func(scriptContent)()
+                    end
+                elseif KRNL_LOADED then
+                    -- สำหรับ KRNL
+                    local func = loadstring or load
+                    if func then
+                        func(scriptContent)()
+                    end
+                else
+                    -- สำหรับ executor ทั่วไป
+                    local func = loadstring or load
+                    if func then
+                        func(scriptContent)()
+                    else
+                        warn("Juix Hub: ไม่สามารถรันสคริปต์ได้ - ไม่พบ loadstring หรือ load function")
+                    end
+                end
+            end
+        end)
+        
+        if not success then
+            warn("Juix Hub: เกิดข้อผิดพลาดในการโหลดสคริปต์ - " .. tostring(err))
+        end
+    end)
+    
+    if expireTime ~= -1 then
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "JuixHub_Timer"
+        ScreenGui.Parent = CoreGui
+        
+        local TimerLabel = Instance.new("TextLabel")
+        TimerLabel.Size = UDim2.new(0, 200, 0, 30)
+        TimerLabel.Position = UDim2.new(0, 10, 1, -40)
+        TimerLabel.BackgroundTransparency = 0.5
+        TimerLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        TimerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TimerLabel.TextSize = 12
+        TimerLabel.Font = Enum.Font.SourceSansBold
+        TimerLabel.TextXAlignment = Enum.TextXAlignment.Center
+        TimerLabel.Parent = ScreenGui
+        
+        local UICorner = Instance.new("UICorner")
+        UICorner.CornerRadius = UDim.new(0, 6)
+        UICorner.Parent = TimerLabel
+
+        RunService.RenderStepped:Connect(function()
+            local timeLeft = expireTime - os.time()
+            if timeLeft > 0 then
+                local days = math.floor(timeLeft / 86400)
+                local hours = math.floor((timeLeft % 86400) / 3600)
+                local minutes = math.floor((timeLeft % 3600) / 60)
+                local seconds = timeLeft % 60
+                if days > 0 then
+                    TimerLabel.Text = string.format("Juix Hub | เหลือเวลา: %dd %02dh %02dm", days, hours, minutes)
+                else
+                    TimerLabel.Text = string.format("Juix Hub | เหลือเวลา: %02d:%02d:%02d", hours, minutes, seconds)
+                end
+            else
+                BlacklistKey(key)
+                TimerLabel.Text = "Juix Hub | คีย์หมดอายุแล้ว!"
+                task.wait(3)
+                ScreenGui:Destroy()
+            end
+        end)
+    end
+end
+
+-- ==================== ตรวจสอบเซฟเดิมตอนเริ่มเกม ====================
+local savedData = LoadData(SaveFileName)
+if savedData and savedData.HWID == HWID then
+    local key = savedData.Key
+    local expireTime = savedData.ExpireTime
+    
+    if ValidKeys[key] and not IsKeyBlacklisted(key) then
+        local currentTime = os.time()
+        if expireTime == -1 or currentTime < expireTime then
+            RunMainScript(key, expireTime)
+            return
+        else
+            BlacklistKey(key)
+        end
+    end
+end
+
+-- ==================== สร้าง UI หน้าต่างใส่รหัส ====================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "JuixHub_PC 2.1"
+ScreenGui.Parent = CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 350, 0, 240)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -120)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "juix hub - Key System"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+local TextBox = Instance.new("TextBox")
+TextBox.Size = UDim2.new(0.8, 0, 0, 40)
+TextBox.Position = UDim2.new(0.1, 0, 0.25, 0)
+TextBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.PlaceholderText = "กรอกคีย์ของคุณที่นี่..."
+TextBox.Text = ""
+TextBox.TextSize = 14
+TextBox.Font = Enum.Font.Gotham
+TextBox.ClearTextOnFocus = false
+TextBox.Parent = MainFrame
+
+local BoxCorner = Instance.new("UICorner")
+BoxCorner.CornerRadius = UDim.new(0, 6)
+BoxCorner.Parent = TextBox
+
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Size = UDim2.new(0.8, 0, 0, 38)
+SubmitBtn.Position = UDim2.new(0.1, 0, 0.48, 0)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitBtn.Text = "SUBMIT"
+SubmitBtn.TextSize = 14
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.Parent = MainFrame
+
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.CornerRadius = UDim.new(0, 6)
+BtnCorner.Parent = SubmitBtn
+
+-- ปุ่ม Discord
+local DiscordBtn = Instance.new("TextButton")
+DiscordBtn.Size = UDim2.new(0.8, 0, 0, 38)
+DiscordBtn.Position = UDim2.new(0.1, 0, 0.70, 0)
+DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+DiscordBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+DiscordBtn.Text = "DISCORD (Copy Link)"
+DiscordBtn.TextSize = 14
+DiscordBtn.Font = Enum.Font.GothamBold
+DiscordBtn.Parent = MainFrame
+
+local DiscordCorner = Instance.new("UICorner")
+DiscordCorner.CornerRadius = UDim.new(0, 6)
+DiscordCorner.Parent = DiscordBtn
+
+DiscordBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("https://discord.gg/at4DZFmh")
+        DiscordBtn.Text = "COPIED LINK!"
+        task.delay(1.5, function()
+            DiscordBtn.Text = "DISCORD (Copy Link)"
+        end)
+    else
+        DiscordBtn.Text = "Executor not support setclipboard"
+        task.delay(1.5, function()
+            DiscordBtn.Text = "DISCORD (Copy Link)"
+        end)
+    end
+end)
+
+SubmitBtn.MouseButton1Click:Connect(function()
+    local inputKey = TextBox.Text
+    
+    if ValidKeys[inputKey] then
+        if IsKeyBlacklisted(inputKey) then
+            TextBox.Text = ""
+            TextBox.PlaceholderText = "คีย์นี้หมดอายุและถูกใช้ไปแล้ว!"
+            task.delay(2, function()
+                TextBox.PlaceholderText = "กรอกคีย์ของคุณที่นี่..."
+            end)
+            return
+        end
+
+        local duration = ValidKeys[inputKey]
+        local expireTime = (duration == -1) and -1 or (os.time() + duration)
+        
+        local saveData = {
+            Key = inputKey,
+            ExpireTime = expireTime,
+            HWID = HWID
+        }
+        SaveData(SaveFileName, saveData)
+        
+        ScreenGui:Destroy()
+        RunMainScript(inputKey, expireTime)
+    else
+        TextBox.Text = ""
+        TextBox.PlaceholderText = "คีย์ไม่ถูกต้อง! ลองใหม่อีกครั้ง"
+        task.delay(1.5, function()
+            TextBox.PlaceholderText = "กรอกคีย์ของคุณที่นี่..."
+        end)
+    end
+end)
