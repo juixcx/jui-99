@@ -1,0 +1,1104 @@
+--[[\
+    Juix Hub Key System UI + Modern Notification Popup (Bottom-Right) + Neon Fall Effect
+]]--
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local AnalyticsService = game:GetService("RbxAnalyticsService")
+local TweenService = game:GetService("TweenService")
+
+local Player = Players.LocalPlayer
+local HWID = AnalyticsService:GetClientId()
+
+local SaveFileName = "JuixHub_KeyData.json"
+local ExpiredListFileName = "JuixHub_ExpiredKeys.json"
+
+-- ==================== รายการคีย์ทั้งหมด ====================
+local ValidKeys = {
+    -- 1 วัน (86,400 วินาที) - 20 คีย์
+    ["jui-1day-a7x2m"] = 86400,
+    ["jui-1day-b9k4p"] = 86400,
+    ["jui-1day-c3v8h"] = 86400,
+    ["jui-1day-d5l1w"] = 86400,
+    ["jui-1day-e2r6z"] = 86400,
+    ["jui-1day-f8q4j"] = 86400,
+    ["jui-1day-g1h9t"] = 86400,
+    ["jui-1day-h6c2n"] = 86400,
+    ["jui-1day-i4v7d"] = 86400,
+    ["jui-1day-j9x3s"] = 86400,
+    ["jui-1day-k2p8b"] = 86400,
+    ["jui-1day-l5m1k"] = 86400,
+    ["jui-1day-m7w4v"] = 86400,
+    ["jui-1day-n3q9z"] = 86400,
+    ["jui-1day-o8h2j"] = 86400,
+    ["jui-1day-p1c6t"] = 86400,
+    ["jui-1day-q5v8r"] = 86400,
+    ["jui-1day-r2x3n"] = 86400,
+    ["jui-1day-s9k7m"] = 86400,
+    ["jui-1day-t4p1w"] = 86400,
+
+    -- 2 วัน (172,800 วินาที) - 20 คีย์
+    ["jui-2day-a3v9m"] = 172800,
+    ["jui-2day-b8k2p"] = 172800,
+    ["jui-2day-c1x5h"] = 172800,
+    ["jui-2day-d7q4w"] = 172800,
+    ["jui-2day-e2m8z"] = 172800,
+    ["jui-2day-f9h3j"] = 172800,
+    ["jui-2day-g4c1t"] = 172800,
+    ["jui-2day-h6v7r"] = 172800,
+    ["jui-2day-i5x2n"] = 172800,
+    ["jui-2day-j3k9s"] = 172800,
+    ["jui-2day-k7p1b"] = 172800,
+    ["jui-2day-l2m6k"] = 172800,
+    ["jui-2day-m9w3v"] = 172800,
+    ["jui-2day-n1q8z"] = 172800,
+    ["jui-2day-o4h5j"] = 172800,
+    ["jui-2day-p8c2t"] = 172800,
+    ["jui-2day-q6v1r"] = 172800,
+    ["jui-2day-r3x7n"] = 172800,
+    ["jui-2day-s5k9m"] = 172800,
+    ["jui-2day-t2p4w"] = 172800,
+
+    -- 3 วัน (259,200 วินาที) - 20 คีย์
+    ["jui-3day-a5x3m"] = 259200,
+    ["jui-3day-b2k9p"] = 259200,
+    ["jui-3day-c8v1h"] = 259200,
+    ["jui-3day-d4q7w"] = 259200,
+    ["jui-3day-e9m2z"] = 259200,
+    ["jui-3day-f1h6j"] = 259200,
+    ["jui-3day-g7c4t"] = 259200,
+    ["jui-3day-h3v5r"] = 259200,
+    ["jui-3day-i8x1n"] = 259200,
+    ["jui-3day-j2k8s"] = 259200,
+    ["jui-3day-k6p3b"] = 259200,
+    ["jui-3day-l9m7k"] = 259200,
+    ["jui-3day-m1w4v"] = 259200,
+    ["jui-3day-n5q2z"] = 259200,
+    ["jui-3day-o7h9j"] = 259200,
+    ["jui-3day-p3c1t"] = 259200,
+    ["jui-3day-q4v8r"] = 259200,
+    ["jui-3day-r8x6n"] = 259200,
+    ["jui-3day-s1k3m"] = 259200,
+    ["jui-3day-t9p5w"] = 259200,
+
+    -- 7 วัน (604,800 วินาที) - 20 คีย์
+    ["jui-7day-a2x8m"] = 604800,
+    ["jui-7day-b6k3p"] = 604800,
+    ["jui-7day-c9v1h"] = 604800,
+    ["jui-7day-d3q5w"] = 604800,
+    ["jui-7day-e7m4z"] = 604800,
+    ["jui-7day-f1h9j"] = 604800,
+    ["jui-7day-g5c2t"] = 604800,
+    ["jui-7day-h8v7r"] = 604800,
+    ["jui-7day-i4x6n"] = 604800,
+    ["jui-7day-j2k1s"] = 604800,
+    ["jui-7day-k9p8b"] = 604800,
+    ["jui-7day-l3m5k"] = 604800,
+    ["jui-7day-m7w2v"] = 604800,
+    ["jui-7day-n1q9z"] = 604800,
+    ["jui-7day-o6h4j"] = 604800,
+    ["jui-7day-p5c3t"] = 604800,
+    ["jui-7day-q8v1r"] = 604800,
+    ["jui-7day-r4x7n"] = 604800,
+    ["jui-7day-s9k2m"] = 604800,
+    ["jui-7day-t2p6w"] = 604800,
+
+    -- 15 วัน (1,296,000 วินาที) - 20 คีย์
+    ["jui-15day-a4x9m"] = 1296000,
+    ["jui-15day-b1k2p"] = 1296000,
+    ["jui-15day-c7v5h"] = 1296000,
+    ["jui-15day-d3q8w"] = 1296000,
+    ["jui-15day-e6m1z"] = 1296000,
+    ["jui-15day-f9h4j"] = 1296000,
+    ["jui-15day-g2c7t"] = 1296000,
+    ["jui-15day-h5v3r"] = 1296000,
+    ["jui-15day-i8x6n"] = 1296000,
+    ["jui-15day-j1k9s"] = 1296000,
+    ["jui-15day-k4p2b"] = 1296000,
+    ["jui-15day-l7m5k"] = 1296000,
+    ["jui-15day-m9w8v"] = 1296000,
+    ["jui-15day-n2q1z"] = 1296000,
+    ["jui-15day-o3h6j"] = 1296000,
+    ["jui-15day-p6c4t"] = 1296000,
+    ["jui-15day-q1v9r"] = 1296000,
+    ["jui-15day-r5x2n"] = 1296000,
+    ["jui-15day-s8k7m"] = 1296000,
+    ["jui-15day-t4p3w"] = 1296000,
+
+    -- 30 วัน (2,592,000 วินาที) - 20 คีย์
+    ["jui-30day-a3x1m"] = 2592000,
+    ["jui-30day-b7k5p"] = 2592000,
+    ["jui-30day-c2v9h"] = 2592000,
+    ["jui-30day-d8q4w"] = 2592000,
+    ["jui-30day-e5m6z"] = 2592000,
+    ["jui-30day-f1h2j"] = 2592000,
+    ["jui-30day-g9c8t"] = 2592000,
+    ["jui-30day-h4v3r"] = 2592000,
+    ["jui-30day-i6x7n"] = 2592000,
+    ["jui-30day-j2k5s"] = 2592000,
+    ["jui-30day-k8p1b"] = 2592000,
+    ["jui-30day-l3m9k"] = 2592000,
+    ["jui-30day-m5w2v"] = 2592000,
+    ["jui-30day-n1q6z"] = 2592000,
+    ["jui-30day-o7h4j"] = 2592000,
+    ["jui-30day-p4c8t"] = 2592000,
+    ["jui-30day-q2v1r"] = 2592000,
+    ["jui-30day-r9x3n"] = 2592000,
+    ["jui-30day-s6k7m"] = 2592000,
+    ["jui-30day-t5p4w"] = 2592000,
+
+    -- ถาวร / แอดมิน (-1 คือไม่หมดอายุ) - 15 คีย์
+    ["jui-permanent-admin01"] = -1,
+    ["jui-permanent-admin02"] = -1,
+    ["jui-permanent-vip01xx"] = -1,
+    ["jui-permanent-vip02xx"] = -1,
+    ["jui-permanent-dev9999"] = -1,
+    ["jui-permanent-juihub1"] = -1,
+    ["jui-permanent-juihub2"] = -1,
+    ["jui-permanent-master1"] = -1,
+    ["jui-permanent-owner99"] = -1,
+    ["jui-permanent-superpro"] = -1,
+    ["jui-permanent-kingx01"] = -1,
+    ["jui-permanent-godmode"] = -1,
+    ["jui-permanent-freezer"] = -1,
+    ["jui-permanent-ultimate"] = -1,
+    ["jui-permanent-juixsec"] = -1
+}
+
+local function LoadData(filename)
+    if writefile and readfile and isfile and isfile(filename) then
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(readfile(filename))
+        end)
+        if success then return data end
+    end
+    return nil
+end
+
+local function SaveData(filename, data)
+    if writefile then
+        writefile(filename, HttpService:JSONEncode(data))
+    end
+end
+
+local function IsKeyBlacklisted(key)
+    local expiredData = LoadData(ExpiredListFileName)
+    if expiredData and expiredData[key] then return true end
+    return false
+end
+
+local function BlacklistKey(key)
+    local expiredData = LoadData(ExpiredListFileName) or {}
+    expiredData[key] = true
+    SaveData(ExpiredListFileName, expiredData)
+end
+
+-- ==================== ฟังก์ชันแสดงหน้าต่างโหลดสคริปต์ (มุมขวาล่าง) ====================
+local function ShowLoadingNotification()
+    local NotifGui = Instance.new("ScreenGui")
+    NotifGui.Name = "JuixHub_Notification"
+    NotifGui.Parent = CoreGui
+    NotifGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- กรอบหลัก (ซ่อนไว้นอกจอทางขวาก่อน เพื่อทำอนิเมชั่นพุ่งเข้ามา)
+    local NotifFrame = Instance.new("Frame")
+    NotifFrame.Size = UDim2.new(0, 260, 0, 75)
+    NotifFrame.Position = UDim2.new(1, 280, 1, -95)
+    NotifFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    NotifFrame.BorderSizePixel = 0
+    NotifFrame.Parent = NotifGui
+
+    local FrameCorner = Instance.new("UICorner")
+    FrameCorner.CornerRadius = UDim.new(0, 12)
+    FrameCorner.Parent = NotifFrame
+
+    local FrameStroke = Instance.new("UIStroke")
+    FrameStroke.Color = Color3.fromRGB(0, 220, 255)
+    FrameStroke.Thickness = 1.5
+    FrameStroke.Transparency = 0.3
+    FrameStroke.Parent = NotifFrame
+
+    -- ไอคอนโลโก้
+    local NotifLogo = Instance.new("ImageLabel")
+    NotifLogo.Size = UDim2.new(0, 45, 0, 45)
+    NotifLogo.Position = UDim2.new(0, 15, 0.5, -22.5)
+    NotifLogo.BackgroundTransparency = 1
+    NotifLogo.Image = "rbxassetid://132871398674601"
+    NotifLogo.Parent = NotifFrame
+
+    -- ข้อความหลัก
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(0, 170, 0, 20)
+    TitleLabel.Position = UDim2.new(0, 70, 0, 17)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = "JUIX HUB"
+    TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 200)
+    TitleLabel.TextSize = 14
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.Parent = NotifFrame
+
+    -- ข้อความสถานะกำลังโหลด
+    local StatusLabel = Instance.new("TextLabel")
+    StatusLabel.Size = UDim2.new(0, 170, 0, 18)
+    StatusLabel.Position = UDim2.new(0, 70, 0, 37)
+    StatusLabel.BackgroundTransparency = 1
+    StatusLabel.Text = "Loading script..."
+    StatusLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
+    StatusLabel.TextSize = 12
+    StatusLabel.Font = Enum.Font.Gotham
+    StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+    StatusLabel.Parent = NotifFrame
+
+    -- อนิเมชั่นเด้งเข้ามุมขวาล่าง
+    TweenService:Create(NotifFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -275, 1, -95)
+    }):Play()
+
+    -- เอฟเฟคหมุนจุดโหลด (Dot Animation)
+    task.spawn(function()
+        local dots = 0
+        while NotifGui.Parent do
+            dots = (dots % 3) + 1
+            StatusLabel.Text = "Loading script" .. string.rep(".", dots)
+            task.wait(0.5)
+        end
+    end)
+
+    -- รอ 2.5 วินาที แล้วเด้งออกขวา (ก่อนลบ GUI ทิ้ง)
+    task.delay(2.5, function()
+        StatusLabel.Text = "Successfully Loaded!"
+        TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+        
+        TweenService:Create(NotifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 280, 1, -95)
+        }):Play()
+        task.wait(0.4)
+        NotifGui:Destroy()
+    end)
+end
+
+-- ฟังก์ชันรันสคริปต์หลักและแสดงเวลาที่มุมซ้ายล่าง
+local function RunMainScript(key, expireTime)
+    -- แสดงหน้าต่างแจ้งเตือนมุมขวาล่างทันที
+    ShowLoadingNotification()
+
+    print("Juix Hub: กำลังโหลดสคริปต์...")
+    coroutine.wrap(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/juixcx/jui-99/refs/heads/test/addmin%20_jui", true))()
+    end)()
+    
+    if expireTime ~= -1 then
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "JuixHub_Timer"
+        ScreenGui.Parent = CoreGui
+        
+        local TimerLabel = Instance.new("TextLabel")
+        TimerLabel.Size = UDim2.new(0, 210, 0, 35)
+        TimerLabel.Position = UDim2.new(0, 15, 1, -50)
+        TimerLabel.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+        TimerLabel.BackgroundTransparency = 0.3
+        TimerLabel.TextColor3 = Color3.fromRGB(0, 255, 200)
+        TimerLabel.TextSize = 13
+        TimerLabel.Font = Enum.Font.GothamBold
+        TimerLabel.Parent = ScreenGui
+        
+        local UICorner = Instance.new("UICorner")
+        UICorner.CornerRadius = UDim.new(0, 8)
+        UICorner.Parent = TimerLabel
+
+        local UIStroke = Instance.new("UIStroke")
+        UIStroke.Color = Color3.fromRGB(0, 255, 200)
+        UIStroke.Transparency = 0.5
+        UIStroke.Parent = TimerLabel
+
+        RunService.RenderStepped:Connect(function()
+            local timeLeft = expireTime - os.time()
+            if timeLeft > 0 then
+                local days = math.floor(timeLeft / 86400)
+                local hours = math.floor((timeLeft % 86400) / 3600)
+                local minutes = math.floor((timeLeft % 3600) / 60)
+                local seconds = timeLeft % 60
+                if days > 0 then
+                    TimerLabel.Text = string.format("⚡ Juix Hub | %dd %02dh %02dm", days, hours, minutes)
+                else
+                    TimerLabel.Text = string.format("⚡ Juix Hub | %02d:%02d:%02d", hours, minutes, seconds)
+                end
+            else
+                BlacklistKey(key)
+                TimerLabel.Text = "❌ Key Expired!"
+                task.wait(3)
+                ScreenGui:Destroy()
+            end
+        end)
+    end
+end
+
+-- ==================== ตรวจสอบเซฟเดิมตอนเริ่มเกม ====================
+local savedData = LoadData(SaveFileName)
+if savedData and savedData.HWID == HWID then
+    local key = savedData.Key
+    local expireTime = savedData.ExpireTime
+    
+    if ValidKeys[key] and not IsKeyBlacklisted(key) then
+        local currentTime = os.time()
+        if expireTime == -1 or currentTime < expireTime then
+            RunMainScript(key, expireTime)
+            return
+        else
+            BlacklistKey(key)
+        end
+    end
+end
+
+-- ==================== สร้าง UI หน้าต่างใส่รหัสสุดหรู ====================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "JuixHub_KeySystem"
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local BackgroundOverlay = Instance.new("Frame")
+BackgroundOverlay.Size = UDim2.new(1, 0, 1, 0)
+BackgroundOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BackgroundOverlay.BackgroundTransparency = 1
+BackgroundOverlay.Parent = ScreenGui
+
+TweenService:Create(BackgroundOverlay, TweenInfo.new(0.5), {BackgroundTransparency = 0.4}):Play()
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 380, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -190, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 14)
+MainCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(0, 220, 255)
+MainStroke.Thickness = 1.5
+MainStroke.Transparency = 0.3
+MainStroke.Parent = MainFrame
+
+-- เอฟเฟคแสงนีออนตกลงมา
+task.spawn(function()
+    while ScreenGui.Parent do
+        local neonLine = Instance.new("Frame")
+        neonLine.Size = UDim2.new(0, math.random(60, 120), 0, 2)
+        neonLine.Position = UDim2.new(math.random(0, 100) / 100, 0, 0, -10)
+        neonLine.BackgroundColor3 = Color3.fromRGB(0, 255, 200)
+        neonLine.BackgroundTransparency = 0.2
+        neonLine.BorderSizePixel = 0
+        neonLine.Parent = MainFrame
+
+        local lineCorner = Instance.new("UICorner")
+        lineCorner.CornerRadius = UDim.new(1, 0)
+        lineCorner.Parent = neonLine
+
+        local fallTween = TweenService:Create(neonLine, TweenInfo.new(math.random(15, 25) / 10, Enum.EasingStyle.Linear), {
+            Position = UDim2.new(neonLine.Position.X.Scale, 0, 1, 10),
+            BackgroundTransparency = 1
+        })
+        
+        fallTween:Play()
+        fallTween.Completed:Connect(function()
+            neonLine:Destroy()
+        end)
+
+        task.wait(math.random(15, 35) / 50)
+    end
+end)
+
+local Logo = Instance.new("ImageLabel")
+Logo.Size = UDim2.new(0, 65, 0, 65)
+Logo.Position = UDim2.new(0.5, -32.5, 0, 20)
+Logo.BackgroundTransparency = 1
+Logo.Image = "rbxassetid://132871398674601"
+Logo.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 25)
+Title.Position = UDim2.new(0, 0, 0, 92)
+Title.BackgroundTransparency = 1
+Title.Text = "JUIX HUB KEY SYSTEM"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+local SubTitle = Instance.new("TextLabel")
+SubTitle.Size = UDim2.new(1, 0, 0, 20)
+SubTitle.Position = UDim2.new(0, 0, 0, 115)
+SubTitle.BackgroundTransparency = 1
+SubTitle.Text = "Please enter your key to continue"
+SubTitle.TextColor3 = Color3.fromRGB(150, 150, 170)
+SubTitle.TextSize = 12
+SubTitle.Font = Enum.Font.Gotham
+SubTitle.Parent = MainFrame
+
+local TextBox = Instance.new("TextBox")
+TextBox.Size = UDim2.new(0.85, 0, 0, 42)
+TextBox.Position = UDim2.new(0.075, 0, 0, 150)
+TextBox.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.PlaceholderText = "Enter your key here..."
+TextBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 120)
+TextBox.Text = ""
+TextBox.TextSize = 13
+TextBox.Font = Enum.Font.Gotham
+TextBox.ClearTextOnFocus = false
+TextBox.Parent = MainFrame
+
+local BoxCorner = Instance.new("UICorner")
+BoxCorner.CornerRadius = UDim.new(0, 8)
+BoxCorner.Parent = TextBox
+
+local BoxStroke = Instance.new("UIStroke")
+BoxStroke.Color = Color3.fromRGB(50, 50, 70)
+BoxStroke.Parent = TextBox
+
+TextBox.Focused:Connect(function()
+    TweenService:Create(BoxStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(0, 200, 255)}):Play()
+end)
+
+TextBox.FocusLost:Connect(function()
+    TweenService:Create(BoxStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(50, 50, 70)}):Play()
+end)
+
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Size = UDim2.new(0.85, 0, 0, 40)
+SubmitBtn.Position = UDim2.new(0.075, 0, 0, 205)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
+SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitBtn.Text = "SUBMIT KEY"
+SubmitBtn.TextSize = 13
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.Parent = MainFrame
+
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.CornerRadius = UDim.new(0, 8)
+BtnCorner.Parent = SubmitBtn
+
+local DiscordBtn = Instance.new("TextButton")
+DiscordBtn.Size = UDim2.new(0.85, 0, 0, 36)
+DiscordBtn.Position = UDim2.new(0.075, 0, 0, 255)
+DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+DiscordBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+DiscordBtn.Text = "DISCORD COMMUNITY"
+DiscordBtn.TextSize = 12
+DiscordBtn.Font = Enum.Font.GothamBold
+DiscordBtn.Parent = MainFrame
+
+local DiscordCorner = Instance.new("UICorner")
+DiscordCorner.CornerRadius = UDim.new(0, 8)
+DiscordCorner.Parent = DiscordBtn
+
+DiscordBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("https://discord.gg/at4DZFmh")
+        DiscordBtn.Text = "COPIED DISCORD LINK!"
+        task.delay(1.5, function()
+            DiscordBtn.Text = "DISCORD COMMUNITY"
+        end)
+    else
+        DiscordBtn.Text = "Executor not support clipboard"
+        task.delay(1.5, function()
+            DiscordBtn.Text = "DISCORD COMMUNITY"
+        end)
+    end
+end)
+
+SubmitBtn.MouseButton1Click:Connect(function()
+    local inputKey = TextBox.Text
+    
+    if ValidKeys[inputKey] then
+        if IsKeyBlacklisted(inputKey) then
+            TextBox.Text = ""
+            TextBox.PlaceholderText = "This key has already expired!"
+            task.delay(2, function()
+                TextBox.PlaceholderText = "Enter your key here..."
+            end)
+            return
+        end
+
+        local duration = ValidKeys[inputKey]
+        local expireTime = (duration == -1) and -1 or (os.time() + duration)
+        
+        local saveData = {
+            Key = inputKey,
+            ExpireTime = expireTime,
+            HWID = HWID
+        }
+        SaveData(SaveFileName, saveData)
+        
+        TweenService:Create(MainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+        TweenService:Create(BackgroundOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+        task.wait(0.3)
+        ScreenGui:Destroy()
+        
+        RunMainScript(inputKey, expireTime)
+    else
+        TextBox.Text = ""
+        TextBox.PlaceholderText = "Invalid Key! Please try again."
+        task.delay(1.5, function()
+            TextBox.PlaceholderText = "Enter your key here..."
+        end)
+    end
+end)
+--[[\
+    Juix Hub Key System UI + Modern Notification Popup (Bottom-Right) + Neon Fall Effect
+]]--
+
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local AnalyticsService = game:GetService("RbxAnalyticsService")
+local TweenService = game:GetService("TweenService")
+
+local Player = Players.LocalPlayer
+local HWID = AnalyticsService:GetClientId()
+
+local SaveFileName = "JuixHub_KeyData.json"
+local ExpiredListFileName = "JuixHub_ExpiredKeys.json"
+
+-- ==================== รายการคีย์ทั้งหมด ====================
+local ValidKeys = {
+    -- 1 วัน (86,400 วินาที) - 20 คีย์
+    ["jui-1day-a7x2m"] = 86400,
+    ["jui-1day-b9k4p"] = 86400,
+    ["jui-1day-c3v8h"] = 86400,
+    ["jui-1day-d5l1w"] = 86400,
+    ["jui-1day-e2r6z"] = 86400,
+    ["jui-1day-f8q4j"] = 86400,
+    ["jui-1day-g1h9t"] = 86400,
+    ["jui-1day-h6c2n"] = 86400,
+    ["jui-1day-i4v7d"] = 86400,
+    ["jui-1day-j9x3s"] = 86400,
+    ["jui-1day-k2p8b"] = 86400,
+    ["jui-1day-l5m1k"] = 86400,
+    ["jui-1day-m7w4v"] = 86400,
+    ["jui-1day-n3q9z"] = 86400,
+    ["jui-1day-o8h2j"] = 86400,
+    ["jui-1day-p1c6t"] = 86400,
+    ["jui-1day-q5v8r"] = 86400,
+    ["jui-1day-r2x3n"] = 86400,
+    ["jui-1day-s9k7m"] = 86400,
+    ["jui-1day-t4p1w"] = 86400,
+
+    -- 2 วัน (172,800 วินาที) - 20 คีย์
+    ["jui-2day-a3v9m"] = 172800,
+    ["jui-2day-b8k2p"] = 172800,
+    ["jui-2day-c1x5h"] = 172800,
+    ["jui-2day-d7q4w"] = 172800,
+    ["jui-2day-e2m8z"] = 172800,
+    ["jui-2day-f9h3j"] = 172800,
+    ["jui-2day-g4c1t"] = 172800,
+    ["jui-2day-h6v7r"] = 172800,
+    ["jui-2day-i5x2n"] = 172800,
+    ["jui-2day-j3k9s"] = 172800,
+    ["jui-2day-k7p1b"] = 172800,
+    ["jui-2day-l2m6k"] = 172800,
+    ["jui-2day-m9w3v"] = 172800,
+    ["jui-2day-n1q8z"] = 172800,
+    ["jui-2day-o4h5j"] = 172800,
+    ["jui-2day-p8c2t"] = 172800,
+    ["jui-2day-q6v1r"] = 172800,
+    ["jui-2day-r3x7n"] = 172800,
+    ["jui-2day-s5k9m"] = 172800,
+    ["jui-2day-t2p4w"] = 172800,
+
+    -- 3 วัน (259,200 วินาที) - 20 คีย์
+    ["jui-3day-a5x3m"] = 259200,
+    ["jui-3day-b2k9p"] = 259200,
+    ["jui-3day-c8v1h"] = 259200,
+    ["jui-3day-d4q7w"] = 259200,
+    ["jui-3day-e9m2z"] = 259200,
+    ["jui-3day-f1h6j"] = 259200,
+    ["jui-3day-g7c4t"] = 259200,
+    ["jui-3day-h3v5r"] = 259200,
+    ["jui-3day-i8x1n"] = 259200,
+    ["jui-3day-j2k8s"] = 259200,
+    ["jui-3day-k6p3b"] = 259200,
+    ["jui-3day-l9m7k"] = 259200,
+    ["jui-3day-m1w4v"] = 259200,
+    ["jui-3day-n5q2z"] = 259200,
+    ["jui-3day-o7h9j"] = 259200,
+    ["jui-3day-p3c1t"] = 259200,
+    ["jui-3day-q4v8r"] = 259200,
+    ["jui-3day-r8x6n"] = 259200,
+    ["jui-3day-s1k3m"] = 259200,
+    ["jui-3day-t9p5w"] = 259200,
+
+    -- 7 วัน (604,800 วินาที) - 20 คีย์
+    ["jui-7day-a2x8m"] = 604800,
+    ["jui-7day-b6k3p"] = 604800,
+    ["jui-7day-c9v1h"] = 604800,
+    ["jui-7day-d3q5w"] = 604800,
+    ["jui-7day-e7m4z"] = 604800,
+    ["jui-7day-f1h9j"] = 604800,
+    ["jui-7day-g5c2t"] = 604800,
+    ["jui-7day-h8v7r"] = 604800,
+    ["jui-7day-i4x6n"] = 604800,
+    ["jui-7day-j2k1s"] = 604800,
+    ["jui-7day-k9p8b"] = 604800,
+    ["jui-7day-l3m5k"] = 604800,
+    ["jui-7day-m7w2v"] = 604800,
+    ["jui-7day-n1q9z"] = 604800,
+    ["jui-7day-o6h4j"] = 604800,
+    ["jui-7day-p5c3t"] = 604800,
+    ["jui-7day-q8v1r"] = 604800,
+    ["jui-7day-r4x7n"] = 604800,
+    ["jui-7day-s9k2m"] = 604800,
+    ["jui-7day-t2p6w"] = 604800,
+
+    -- 15 วัน (1,296,000 วินาที) - 20 คีย์
+    ["jui-15day-a4x9m"] = 1296000,
+    ["jui-15day-b1k2p"] = 1296000,
+    ["jui-15day-c7v5h"] = 1296000,
+    ["jui-15day-d3q8w"] = 1296000,
+    ["jui-15day-e6m1z"] = 1296000,
+    ["jui-15day-f9h4j"] = 1296000,
+    ["jui-15day-g2c7t"] = 1296000,
+    ["jui-15day-h5v3r"] = 1296000,
+    ["jui-15day-i8x6n"] = 1296000,
+    ["jui-15day-j1k9s"] = 1296000,
+    ["jui-15day-k4p2b"] = 1296000,
+    ["jui-15day-l7m5k"] = 1296000,
+    ["jui-15day-m9w8v"] = 1296000,
+    ["jui-15day-n2q1z"] = 1296000,
+    ["jui-15day-o3h6j"] = 1296000,
+    ["jui-15day-p6c4t"] = 1296000,
+    ["jui-15day-q1v9r"] = 1296000,
+    ["jui-15day-r5x2n"] = 1296000,
+    ["jui-15day-s8k7m"] = 1296000,
+    ["jui-15day-t4p3w"] = 1296000,
+
+    -- 30 วัน (2,592,000 วินาที) - 20 คีย์
+    ["jui-30day-a3x1m"] = 2592000,
+    ["jui-30day-b7k5p"] = 2592000,
+    ["jui-30day-c2v9h"] = 2592000,
+    ["jui-30day-d8q4w"] = 2592000,
+    ["jui-30day-e5m6z"] = 2592000,
+    ["jui-30day-f1h2j"] = 2592000,
+    ["jui-30day-g9c8t"] = 2592000,
+    ["jui-30day-h4v3r"] = 2592000,
+    ["jui-30day-i6x7n"] = 2592000,
+    ["jui-30day-j2k5s"] = 2592000,
+    ["jui-30day-k8p1b"] = 2592000,
+    ["jui-30day-l3m9k"] = 2592000,
+    ["jui-30day-m5w2v"] = 2592000,
+    ["jui-30day-n1q6z"] = 2592000,
+    ["jui-30day-o7h4j"] = 2592000,
+    ["jui-30day-p4c8t"] = 2592000,
+    ["jui-30day-q2v1r"] = 2592000,
+    ["jui-30day-r9x3n"] = 2592000,
+    ["jui-30day-s6k7m"] = 2592000,
+    ["jui-30day-t5p4w"] = 2592000,
+
+    -- ถาวร / แอดมิน (-1 คือไม่หมดอายุ) - 15 คีย์
+    ["jui-permanent-admin01"] = -1,
+    ["jui-permanent-admin02"] = -1,
+    ["jui-permanent-vip01xx"] = -1,
+    ["jui-permanent-vip02xx"] = -1,
+    ["jui-permanent-dev9999"] = -1,
+    ["jui-permanent-juihub1"] = -1,
+    ["jui-permanent-juihub2"] = -1,
+    ["jui-permanent-master1"] = -1,
+    ["jui-permanent-owner99"] = -1,
+    ["jui-permanent-superpro"] = -1,
+    ["jui-permanent-kingx01"] = -1,
+    ["jui-permanent-godmode"] = -1,
+    ["jui-permanent-freezer"] = -1,
+    ["jui-permanent-ultimate"] = -1,
+    ["jui-permanent-juixsec"] = -1
+}
+
+local function LoadData(filename)
+    if writefile and readfile and isfile and isfile(filename) then
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(readfile(filename))
+        end)
+        if success then return data end
+    end
+    return nil
+end
+
+local function SaveData(filename, data)
+    if writefile then
+        writefile(filename, HttpService:JSONEncode(data))
+    end
+end
+
+local function IsKeyBlacklisted(key)
+    local expiredData = LoadData(ExpiredListFileName)
+    if expiredData and expiredData[key] then return true end
+    return false
+end
+
+local function BlacklistKey(key)
+    local expiredData = LoadData(ExpiredListFileName) or {}
+    expiredData[key] = true
+    SaveData(ExpiredListFileName, expiredData)
+end
+
+-- ==================== ฟังก์ชันแสดงหน้าต่างโหลดสคริปต์ (มุมขวาล่าง) ====================
+local function ShowLoadingNotification()
+    local NotifGui = Instance.new("ScreenGui")
+    NotifGui.Name = "JuixHub_Notification"
+    NotifGui.Parent = CoreGui
+    NotifGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- กรอบหลัก (ซ่อนไว้นอกจอทางขวาก่อน เพื่อทำอนิเมชั่นพุ่งเข้ามา)
+    local NotifFrame = Instance.new("Frame")
+    NotifFrame.Size = UDim2.new(0, 260, 0, 75)
+    NotifFrame.Position = UDim2.new(1, 280, 1, -95)
+    NotifFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+    NotifFrame.BorderSizePixel = 0
+    NotifFrame.Parent = NotifGui
+
+    local FrameCorner = Instance.new("UICorner")
+    FrameCorner.CornerRadius = UDim.new(0, 12)
+    FrameCorner.Parent = NotifFrame
+
+    local FrameStroke = Instance.new("UIStroke")
+    FrameStroke.Color = Color3.fromRGB(0, 220, 255)
+    FrameStroke.Thickness = 1.5
+    FrameStroke.Transparency = 0.3
+    FrameStroke.Parent = NotifFrame
+
+    -- ไอคอนโลโก้
+    local NotifLogo = Instance.new("ImageLabel")
+    NotifLogo.Size = UDim2.new(0, 45, 0, 45)
+    NotifLogo.Position = UDim2.new(0, 15, 0.5, -22.5)
+    NotifLogo.BackgroundTransparency = 1
+    NotifLogo.Image = "rbxassetid://132871398674601"
+    NotifLogo.Parent = NotifFrame
+
+    -- ข้อความหลัก
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(0, 170, 0, 20)
+    TitleLabel.Position = UDim2.new(0, 70, 0, 17)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = "JUIX HUB"
+    TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 200)
+    TitleLabel.TextSize = 14
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.Parent = NotifFrame
+
+    -- ข้อความสถานะกำลังโหลด
+    local StatusLabel = Instance.new("TextLabel")
+    StatusLabel.Size = UDim2.new(0, 170, 0, 18)
+    StatusLabel.Position = UDim2.new(0, 70, 0, 37)
+    StatusLabel.BackgroundTransparency = 1
+    StatusLabel.Text = "Loading script..."
+    StatusLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
+    StatusLabel.TextSize = 12
+    StatusLabel.Font = Enum.Font.Gotham
+    StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+    StatusLabel.Parent = NotifFrame
+
+    -- อนิเมชั่นเด้งเข้ามุมขวาล่าง
+    TweenService:Create(NotifFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -275, 1, -95)
+    }):Play()
+
+    -- เอฟเฟคหมุนจุดโหลด (Dot Animation)
+    task.spawn(function()
+        local dots = 0
+        while NotifGui.Parent do
+            dots = (dots % 3) + 1
+            StatusLabel.Text = "Loading script" .. string.rep(".", dots)
+            task.wait(0.5)
+        end
+    end)
+
+    -- รอ 2.5 วินาที แล้วเด้งออกขวา (ก่อนลบ GUI ทิ้ง)
+    task.delay(2.5, function()
+        StatusLabel.Text = "Successfully Loaded!"
+        TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+        
+        TweenService:Create(NotifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 280, 1, -95)
+        }):Play()
+        task.wait(0.4)
+        NotifGui:Destroy()
+    end)
+end
+
+-- ฟังก์ชันรันสคริปต์หลักและแสดงเวลาที่มุมซ้ายล่าง
+local function RunMainScript(key, expireTime)
+    -- แสดงหน้าต่างแจ้งเตือนมุมขวาล่างทันที
+    ShowLoadingNotification()
+
+    print("Juix Hub: กำลังโหลดสคริปต์...")
+    coroutine.wrap(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/juixcx/jui-99/refs/heads/test/addmin%20_jui", true))()
+    end)()
+    
+    if expireTime ~= -1 then
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "JuixHub_Timer"
+        ScreenGui.Parent = CoreGui
+        
+        local TimerLabel = Instance.new("TextLabel")
+        TimerLabel.Size = UDim2.new(0, 210, 0, 35)
+        TimerLabel.Position = UDim2.new(0, 15, 1, -50)
+        TimerLabel.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+        TimerLabel.BackgroundTransparency = 0.3
+        TimerLabel.TextColor3 = Color3.fromRGB(0, 255, 200)
+        TimerLabel.TextSize = 13
+        TimerLabel.Font = Enum.Font.GothamBold
+        TimerLabel.Parent = ScreenGui
+        
+        local UICorner = Instance.new("UICorner")
+        UICorner.CornerRadius = UDim.new(0, 8)
+        UICorner.Parent = TimerLabel
+
+        local UIStroke = Instance.new("UIStroke")
+        UIStroke.Color = Color3.fromRGB(0, 255, 200)
+        UIStroke.Transparency = 0.5
+        UIStroke.Parent = TimerLabel
+
+        RunService.RenderStepped:Connect(function()
+            local timeLeft = expireTime - os.time()
+            if timeLeft > 0 then
+                local days = math.floor(timeLeft / 86400)
+                local hours = math.floor((timeLeft % 86400) / 3600)
+                local minutes = math.floor((timeLeft % 3600) / 60)
+                local seconds = timeLeft % 60
+                if days > 0 then
+                    TimerLabel.Text = string.format("⚡ Juix Hub | %dd %02dh %02dm", days, hours, minutes)
+                else
+                    TimerLabel.Text = string.format("⚡ Juix Hub | %02d:%02d:%02d", hours, minutes, seconds)
+                end
+            else
+                BlacklistKey(key)
+                TimerLabel.Text = "❌ Key Expired!"
+                task.wait(3)
+                ScreenGui:Destroy()
+            end
+        end)
+    end
+end
+
+-- ==================== ตรวจสอบเซฟเดิมตอนเริ่มเกม ====================
+local savedData = LoadData(SaveFileName)
+if savedData and savedData.HWID == HWID then
+    local key = savedData.Key
+    local expireTime = savedData.ExpireTime
+    
+    if ValidKeys[key] and not IsKeyBlacklisted(key) then
+        local currentTime = os.time()
+        if expireTime == -1 or currentTime < expireTime then
+            RunMainScript(key, expireTime)
+            return
+        else
+            BlacklistKey(key)
+        end
+    end
+end
+
+-- ==================== สร้าง UI หน้าต่างใส่รหัสสุดหรู ====================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "JuixHub_KeySystem"
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local BackgroundOverlay = Instance.new("Frame")
+BackgroundOverlay.Size = UDim2.new(1, 0, 1, 0)
+BackgroundOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BackgroundOverlay.BackgroundTransparency = 1
+BackgroundOverlay.Parent = ScreenGui
+
+TweenService:Create(BackgroundOverlay, TweenInfo.new(0.5), {BackgroundTransparency = 0.4}):Play()
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 380, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -190, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 14)
+MainCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(0, 220, 255)
+MainStroke.Thickness = 1.5
+MainStroke.Transparency = 0.3
+MainStroke.Parent = MainFrame
+
+-- เอฟเฟคแสงนีออนตกลงมา
+task.spawn(function()
+    while ScreenGui.Parent do
+        local neonLine = Instance.new("Frame")
+        neonLine.Size = UDim2.new(0, math.random(60, 120), 0, 2)
+        neonLine.Position = UDim2.new(math.random(0, 100) / 100, 0, 0, -10)
+        neonLine.BackgroundColor3 = Color3.fromRGB(0, 255, 200)
+        neonLine.BackgroundTransparency = 0.2
+        neonLine.BorderSizePixel = 0
+        neonLine.Parent = MainFrame
+
+        local lineCorner = Instance.new("UICorner")
+        lineCorner.CornerRadius = UDim.new(1, 0)
+        lineCorner.Parent = neonLine
+
+        local fallTween = TweenService:Create(neonLine, TweenInfo.new(math.random(15, 25) / 10, Enum.EasingStyle.Linear), {
+            Position = UDim2.new(neonLine.Position.X.Scale, 0, 1, 10),
+            BackgroundTransparency = 1
+        })
+        
+        fallTween:Play()
+        fallTween.Completed:Connect(function()
+            neonLine:Destroy()
+        end)
+
+        task.wait(math.random(15, 35) / 50)
+    end
+end)
+
+local Logo = Instance.new("ImageLabel")
+Logo.Size = UDim2.new(0, 65, 0, 65)
+Logo.Position = UDim2.new(0.5, -32.5, 0, 20)
+Logo.BackgroundTransparency = 1
+Logo.Image = "rbxassetid://132871398674601"
+Logo.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 25)
+Title.Position = UDim2.new(0, 0, 0, 92)
+Title.BackgroundTransparency = 1
+Title.Text = "JUIX HUB KEY SYSTEM"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+local SubTitle = Instance.new("TextLabel")
+SubTitle.Size = UDim2.new(1, 0, 0, 20)
+SubTitle.Position = UDim2.new(0, 0, 0, 115)
+SubTitle.BackgroundTransparency = 1
+SubTitle.Text = "Please enter your key to continue"
+SubTitle.TextColor3 = Color3.fromRGB(150, 150, 170)
+SubTitle.TextSize = 12
+SubTitle.Font = Enum.Font.Gotham
+SubTitle.Parent = MainFrame
+
+local TextBox = Instance.new("TextBox")
+TextBox.Size = UDim2.new(0.85, 0, 0, 42)
+TextBox.Position = UDim2.new(0.075, 0, 0, 150)
+TextBox.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.PlaceholderText = "Enter your key here..."
+TextBox.PlaceholderColor3 = Color3.fromRGB(100, 100, 120)
+TextBox.Text = ""
+TextBox.TextSize = 13
+TextBox.Font = Enum.Font.Gotham
+TextBox.ClearTextOnFocus = false
+TextBox.Parent = MainFrame
+
+local BoxCorner = Instance.new("UICorner")
+BoxCorner.CornerRadius = UDim.new(0, 8)
+BoxCorner.Parent = TextBox
+
+local BoxStroke = Instance.new("UIStroke")
+BoxStroke.Color = Color3.fromRGB(50, 50, 70)
+BoxStroke.Parent = TextBox
+
+TextBox.Focused:Connect(function()
+    TweenService:Create(BoxStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(0, 200, 255)}):Play()
+end)
+
+TextBox.FocusLost:Connect(function()
+    TweenService:Create(BoxStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(50, 50, 70)}):Play()
+end)
+
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Size = UDim2.new(0.85, 0, 0, 40)
+SubmitBtn.Position = UDim2.new(0.075, 0, 0, 205)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
+SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitBtn.Text = "SUBMIT KEY"
+SubmitBtn.TextSize = 13
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.Parent = MainFrame
+
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.CornerRadius = UDim.new(0, 8)
+BtnCorner.Parent = SubmitBtn
+
+local DiscordBtn = Instance.new("TextButton")
+DiscordBtn.Size = UDim2.new(0.85, 0, 0, 36)
+DiscordBtn.Position = UDim2.new(0.075, 0, 0, 255)
+DiscordBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+DiscordBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+DiscordBtn.Text = "DISCORD COMMUNITY"
+DiscordBtn.TextSize = 12
+DiscordBtn.Font = Enum.Font.GothamBold
+DiscordBtn.Parent = MainFrame
+
+local DiscordCorner = Instance.new("UICorner")
+DiscordCorner.CornerRadius = UDim.new(0, 8)
+DiscordCorner.Parent = DiscordBtn
+
+DiscordBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("https://discord.gg/at4DZFmh")
+        DiscordBtn.Text = "COPIED DISCORD LINK!"
+        task.delay(1.5, function()
+            DiscordBtn.Text = "DISCORD COMMUNITY"
+        end)
+    else
+        DiscordBtn.Text = "Executor not support clipboard"
+        task.delay(1.5, function()
+            DiscordBtn.Text = "DISCORD COMMUNITY"
+        end)
+    end
+end)
+
+SubmitBtn.MouseButton1Click:Connect(function()
+    local inputKey = TextBox.Text
+    
+    if ValidKeys[inputKey] then
+        if IsKeyBlacklisted(inputKey) then
+            TextBox.Text = ""
+            TextBox.PlaceholderText = "This key has already expired!"
+            task.delay(2, function()
+                TextBox.PlaceholderText = "Enter your key here..."
+            end)
+            return
+        end
+
+        local duration = ValidKeys[inputKey]
+        local expireTime = (duration == -1) and -1 or (os.time() + duration)
+        
+        local saveData = {
+            Key = inputKey,
+            ExpireTime = expireTime,
+            HWID = HWID
+        }
+        SaveData(SaveFileName, saveData)
+        
+        TweenService:Create(MainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+        TweenService:Create(BackgroundOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+        task.wait(0.3)
+        ScreenGui:Destroy()
+        
+        RunMainScript(inputKey, expireTime)
+    else
+        TextBox.Text = ""
+        TextBox.PlaceholderText = "Invalid Key! Please try again."
+        task.delay(1.5, function()
+            TextBox.PlaceholderText = "Enter your key here..."
+        end)
+    end
+end)
