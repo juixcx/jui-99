@@ -1,5 +1,6 @@
 -- =============================================
 -- 🫐 JUIX HUB 2.2 - FULL SCRIPT (ลบ Aim Part + ล็อคตัว + Anti Kill อยู่เฉยๆ)
+-- แก้ไข: เปลี่ยน FOV เป็น 20เหลี่ยม (สีรุ้ง) + Redline Lock ตาม FOV
 -- =============================================
 
 local a = game:GetService("Players")
@@ -287,189 +288,67 @@ K.Transparency = 1
 K.Visible = false
 
 -- =============================================
--- ✅ FOV วงกลมใหญ่ ⭕
+-- ✅ FOV Drawing (เปลี่ยนเป็น 20 เหลี่ยม สีรุ้ง)
 -- =============================================
 local fovEnabled = false
-local fovRadius = 350
-local fovCircleUI = nil
-local fovCircleGui = nil
+local fovRadius = 200
+local fovSides = 20
+local fovDrawings = {}
 
-local function createFOVCircle()
-    local playerGui = r:WaitForChild("PlayerGui")
+for i = 1, fovSides do
+    local line = Drawing.new("Line")
+    line.Visible = false
+    line.Thickness = 2
+    line.Transparency = 1
+    table.insert(fovDrawings, line)
+end
+
+local function updateFOVDecagon()
+    local viewportSize = y.ViewportSize
+    local center = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
+    local rainbowColor = Color3.fromHSV((tick() % 5) / 5, 1, 1)
     
-    local oldGui = playerGui:FindFirstChild("JuixFOVCircle")
-    if oldGui then oldGui:Destroy() end
+    H = fovRadius -- ให้ค่า H (ระยะ FOV สำหรับเล็ง) ปรับตามขนาดของ FOV ที่ผู้เล่นตั้งค่า
     
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "JuixFOVCircle"
-    gui.ResetOnSpawn = false
-    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    gui.Parent = playerGui
-    
-    local circle = Instance.new("Frame")
-    circle.Name = "FOVCircle"
-    circle.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
-    circle.AnchorPoint = Vector2.new(0.5, 0.5)
-    circle.Position = UDim2.new(0.5, 0, 0.5, 0)
-    circle.BackgroundTransparency = 1
-    circle.BorderSizePixel = 0
-    circle.ZIndex = 5
-    circle.Visible = false
-    circle.Parent = gui
-    
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(1, 0)
-    corner.Parent = circle
-    
-    local stroke = Instance.new("UIStroke")
-    stroke.Name = "CircleStroke"
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    stroke.Color = Color3.fromRGB(255, 255, 255)
-    stroke.Transparency = 0
-    stroke.Thickness = 2.5
-    stroke.Parent = circle
-    
-    fovCircleUI = circle
-    fovCircleGui = gui
-    return gui, circle
+    for i = 1, fovSides do
+        local angle1 = (i - 1) * (2 * math.pi / fovSides)
+        local angle2 = i * (2 * math.pi / fovSides)
+        
+        local p1 = center + Vector2.new(math.cos(angle1) * fovRadius, math.sin(angle1) * fovRadius)
+        local p2 = center + Vector2.new(math.cos(angle2) * fovRadius, math.sin(angle2) * fovRadius)
+        
+        local line = fovDrawings[i]
+        if line then
+            line.From = p1
+            line.To = p2
+            line.Color = rainbowColor
+            line.Visible = fovEnabled
+        end
+    end
 end
 
 local function setFOVVisible(visible)
-    if not fovCircleGui then
-        createFOVCircle()
-    end
-    if fovCircleUI then
-        fovCircleUI.Visible = visible
+    for _, line in ipairs(fovDrawings) do
+        line.Visible = visible
     end
 end
 
 local function updateFOVSize(radius)
-    fovRadius = radius or 350
-    if fovCircleUI then
-        local size = fovRadius * 2
-        fovCircleUI.Size = UDim2.new(0, size, 0, size)
-    end
+    fovRadius = radius or 150
+    H = fovRadius
 end
 
+b.RenderStepped:Connect(function()
+    if fovEnabled then
+        updateFOVDecagon()
+    end
+end)
+
 -- =============================================
--- ✅ RED LINE LOCK (ล็อคที่ตัว - HumanoidRootPart)
+-- ✅ RED LINE LOCK (ล็อคตาม FOV)
 -- =============================================
 local redLineEnabled = false
 local redLineTarget = nil
-local targetBillboard = nil
-
-local function createTargetBillboard(targetPlayer)
-    if targetBillboard then
-        targetBillboard:Destroy()
-        targetBillboard = nil
-    end
-    
-    if not targetPlayer or not targetPlayer.Character then
-        return
-    end
-    
-    local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if not targetRoot then
-        return
-    end
-    
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "Target_Billboard"
-    billboard.Size = UDim2.new(0, 73, 0, 13)
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
-    billboard.AlwaysOnTop = true
-    billboard.MaxDistance = 9999
-    billboard.Adornee = targetRoot
-    billboard.Parent = targetRoot
-    billboard.Enabled = true
-    
-    local bg = Instance.new("Frame")
-    bg.Name = "Background"
-    bg.Size = UDim2.new(1, 0, 1, 0)
-    bg.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    bg.BackgroundTransparency = 0.25
-    bg.BorderSizePixel = 1
-    bg.BorderColor3 = Color3.fromRGB(255, 0, 0)
-    bg.ZIndex = 1
-    bg.Parent = billboard
-    
-    local bgCorner = Instance.new("UICorner")
-    bgCorner.CornerRadius = UDim.new(0, 4)
-    bgCorner.Parent = bg
-    
-    local lockLabel = Instance.new("TextLabel")
-    lockLabel.Name = "LockLabel"
-    lockLabel.Size = UDim2.new(1, 0, 1, 0)
-    lockLabel.Position = UDim2.new(0, 0, 0, 0)
-    lockLabel.BackgroundTransparency = 1
-    lockLabel.Text = "🔴 ล้อค"
-    lockLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
-    lockLabel.TextScaled = true
-    lockLabel.Font = Enum.Font.GothamBold
-    lockLabel.TextStrokeTransparency = 0.2
-    lockLabel.ZIndex = 2
-    lockLabel.Parent = billboard
-    
-    targetBillboard = billboard
-    
-    task.spawn(function()
-        while targetBillboard and targetBillboard == billboard and redLineEnabled and redLineTarget == targetPlayer do
-            local pulse = (math.sin(tick() * 4) + 1) / 2
-            local color = Color3.fromRGB(255 - pulse * 100, pulse * 50, 0)
-            
-            bg.BackgroundColor3 = color
-            bg.BorderColor3 = color
-            lockLabel.TextColor3 = color
-            
-            task.wait(0.05)
-        end
-    end)
-    
-    return billboard
-end
-
-local function updateRedLineBillboard()
-    if not redLineEnabled or not redLineTarget then
-        if targetBillboard then
-            targetBillboard:Destroy()
-            targetBillboard = nil
-        end
-        return
-    end
-    
-    if not redLineTarget.Character then
-        if targetBillboard then
-            targetBillboard:Destroy()
-            targetBillboard = nil
-        end
-        return
-    end
-    
-    local targetRoot = redLineTarget.Character:FindFirstChild("HumanoidRootPart")
-    if not targetRoot then
-        if targetBillboard then
-            targetBillboard:Destroy()
-            targetBillboard = nil
-        end
-        return
-    end
-    
-    if not targetBillboard or targetBillboard.Adornee ~= targetRoot then
-        createTargetBillboard(redLineTarget)
-    end
-    
-    if targetBillboard then
-        targetBillboard.Enabled = true
-    end
-end
-
-local function clearRedLineBillboard()
-    if targetBillboard then
-        targetBillboard:Destroy()
-        targetBillboard = nil
-    end
-    redLineTarget = nil
-end
 
 -- =============================================
 -- ตัวแปรอื่นๆ
@@ -749,7 +628,6 @@ local function teleportUnderground()
     local aE = aD.CFrame
     ah = aE + Vector3.new(0, am, 0)
     aD.CFrame = ah
-    -- หยุดการเคลื่อนไหวทั้งหมด
     aD.Velocity = Vector3.new(0, 0, 0)
     aD.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
     aD.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
@@ -1352,123 +1230,108 @@ end
 local espCache = {}
 
 -- =============================================
--- ✅ ESP NAME (BillboardGui)
+-- ✅ ESP NAME (Drawing)
 -- =============================================
 local function createESPName(player)
-    if espCache[player] and espCache[player].nameBillboard then
+    if espCache[player] and espCache[player].nameDrawing then
         return
     end
     
-    local function attachESP(character)
-        local head = character:WaitForChild("Head", 5)
-        if not head then return end
-        
-        if espCache[player] and espCache[player].nameBillboard then
-            espCache[player].nameBillboard:Destroy()
+    local textDrawing = Drawing.new("Text")
+    textDrawing.Center = true
+    textDrawing.Outlined = true
+    textDrawing.OutlineColor = Color3.fromRGB(0, 0, 0)
+    textDrawing.Size = 18
+    textDrawing.Font = 2
+    textDrawing.Visible = false
+    textDrawing.Color = isPlayerExcluded(player.Name) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
+    textDrawing.Text = player.Name
+    
+    local updateConnection
+    local function updateNameESP()
+        if not player.Character then
+            textDrawing.Visible = false
+            return
         end
         
-        local billboard = Instance.new("BillboardGui")
-        billboard.Name = "ESP_Name"
-        billboard.Size = UDim2.new(0, 70, 0, 12)
-        billboard.StudsOffset = Vector3.new(0, 3.5, 0)
-        billboard.AlwaysOnTop = true
-        billboard.MaxDistance = 9999
-        billboard.Parent = head
-
-        local textLabel = Instance.new("TextLabel")
-        textLabel.Size = UDim2.new(1, 0, 1, 0)
-        textLabel.BackgroundTransparency = 1
-        textLabel.Text = player.Name
-        textLabel.TextColor3 = isPlayerExcluded(player.Name) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
-        textLabel.TextStrokeTransparency = 0.3
-        textLabel.TextScaled = true
-        textLabel.Font = Enum.Font.SourceSansBold
-        textLabel.Parent = billboard
-        
-        if not espCache[player] then
-            espCache[player] = {}
+        local head = player.Character:FindFirstChild("Head")
+        if not head then
+            textDrawing.Visible = false
+            return
         end
-        espCache[player].nameBillboard = billboard
-        espCache[player].nameHead = head
         
-        head.AncestryChanged:Connect(function()
-            if not head:IsDescendantOf(workspace) then
-                billboard.Parent = nil
-            end
-        end)
+        local pos, onScreen = y:WorldToViewportPoint(head.Position + Vector3.new(0, 3, 0))
+        if onScreen and pos.Z > 0 then
+            textDrawing.Position = Vector2.new(pos.X, pos.Y - 20)
+            textDrawing.Visible = true
+        else
+            textDrawing.Visible = false
+        end
     end
     
-    if player.Character then
-        attachESP(player.Character)
-    end
+    updateConnection = b.RenderStepped:Connect(updateNameESP)
     
-    player.CharacterAdded:Connect(attachESP)
+    if not espCache[player] then
+        espCache[player] = {}
+    end
+    espCache[player].nameDrawing = textDrawing
+    espCache[player].nameConnection = updateConnection
 end
 
 -- =============================================
--- ✅ ESP DISTANCE (BillboardGui)
+-- ✅ ESP DISTANCE (Drawing)
 -- =============================================
 local function createESPDistance(player)
-    if espCache[player] and espCache[player].distanceBillboard then
+    if espCache[player] and espCache[player].distanceDrawing then
         return
     end
     
-    local function attachESP(character)
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 5)
-        if not humanoidRootPart then return end
-        
-        if espCache[player] and espCache[player].distanceBillboard then
-            espCache[player].distanceBillboard:Destroy()
+    local textDrawing = Drawing.new("Text")
+    textDrawing.Center = true
+    textDrawing.Outlined = true
+    textDrawing.OutlineColor = Color3.fromRGB(0, 0, 0)
+    textDrawing.Size = 15
+    textDrawing.Font = 2
+    textDrawing.Visible = false
+    textDrawing.Color = Color3.fromRGB(255, 255, 255)
+    textDrawing.Text = "[?m]"
+    
+    local updateConnection
+    local function updateDistanceESP()
+        if not player.Character then
+            textDrawing.Visible = false
+            textDrawing.Text = "[Dead]"
+            return
         end
         
-        local billboard = Instance.new("BillboardGui")
-        billboard.Name = "ESP_Distance"
-        billboard.Size = UDim2.new(0, 73, 0, 14)
-        billboard.StudsOffset = Vector3.new(0, -5, 0)
-        billboard.AlwaysOnTop = true
-        billboard.MaxDistance = 9999
-        billboard.Parent = humanoidRootPart
-
-        local textLabel = Instance.new("TextLabel")
-        textLabel.Size = UDim2.new(1, 0, 1, 0)
-        textLabel.BackgroundTransparency = 1
-        textLabel.Text = "[?m]"
-        textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        textLabel.TextStrokeTransparency = 0.3
-        textLabel.TextScaled = true
-        textLabel.Font = Enum.Font.SourceSans
-        textLabel.Parent = billboard
-        
-        if not espCache[player] then
-            espCache[player] = {}
+        local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+        if not rootPart then
+            textDrawing.Visible = false
+            return
         end
-        espCache[player].distanceBillboard = billboard
-        espCache[player].distanceLabel = textLabel
-        espCache[player].distanceHRP = humanoidRootPart
         
-        local updateConnection
-        updateConnection = b.RenderStepped:Connect(function()
-            if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
-                textLabel.Text = "[Dead]"
-                return
-            end
-            
-            if r.Character and r.Character:FindFirstChild("HumanoidRootPart") then
-                local myRoot = r.Character.HumanoidRootPart
-                local theirRoot = player.Character.HumanoidRootPart
-                local distance = (myRoot.Position - theirRoot.Position).Magnitude
-                textLabel.Text = "[" .. math.floor(distance) .. "m]"
-            end
-        end)
+        if r.Character and r.Character:FindFirstChild("HumanoidRootPart") then
+            local myRoot = r.Character.HumanoidRootPart
+            local distance = (myRoot.Position - rootPart.Position).Magnitude
+            textDrawing.Text = "[" .. math.floor(distance) .. "m]"
+        end
         
-        espCache[player].distanceConnection = updateConnection
+        local pos, onScreen = y:WorldToViewportPoint(rootPart.Position + Vector3.new(0, -4.5, 0))
+        if onScreen and pos.Z > 0 then
+            textDrawing.Position = Vector2.new(pos.X, pos.Y)
+            textDrawing.Visible = true
+        else
+            textDrawing.Visible = false
+        end
     end
     
-    if player.Character then
-        attachESP(player.Character)
-    end
+    updateConnection = b.RenderStepped:Connect(updateDistanceESP)
     
-    player.CharacterAdded:Connect(attachESP)
+    if not espCache[player] then
+        espCache[player] = {}
+    end
+    espCache[player].distanceDrawing = textDrawing
+    espCache[player].distanceConnection = updateConnection
 end
 
 -- =============================================
@@ -1476,11 +1339,14 @@ end
 -- =============================================
 local function removeAllESP(player)
     if espCache[player] then
-        if espCache[player].nameBillboard then
-            espCache[player].nameBillboard:Destroy()
+        if espCache[player].nameDrawing then
+            espCache[player].nameDrawing:Remove()
         end
-        if espCache[player].distanceBillboard then
-            espCache[player].distanceBillboard:Destroy()
+        if espCache[player].distanceDrawing then
+            espCache[player].distanceDrawing:Remove()
+        end
+        if espCache[player].nameConnection then
+            espCache[player].nameConnection:Disconnect()
         end
         if espCache[player].distanceConnection then
             espCache[player].distanceConnection:Disconnect()
@@ -1710,7 +1576,7 @@ local function isShotgun()
 end
 
 -- =============================================
--- ✅ SILENT AIM HOOK (เล็งที่ตัว - HumanoidRootPart)
+-- ✅ SILENT AIM HOOK
 -- =============================================
 local aM
 if E and E.FireServer then
@@ -1848,30 +1714,39 @@ end
 -- =============================================
 b.RenderStepped:Connect(function()
     pcall(function()
+        -- ค้นหาเป้าหมายตาม FOV
         if redLineEnabled or F then 
             I = getClosestTarget() 
         end
         
+        -- FOV Control
         if fovEnabled then
-            if not fovCircleUI then
-                createFOVCircle()
-            end
             setFOVVisible(true)
         else
             setFOVVisible(false)
         end
         
-        if redLineEnabled and I then
-            redLineTarget = I
-            updateRedLineBillboard()
-        else
-            if targetBillboard then
-                targetBillboard:Destroy()
-                targetBillboard = nil
+        -- ✅ Red Line Lock (ล็อคตาม FOV จริง)
+        if redLineEnabled and I and I.Character then
+            local targetPart = I.Character:FindFirstChild("HumanoidRootPart")
+            if targetPart then
+                local screenPos, onScreen = y:WorldToViewportPoint(targetPart.Position)
+                local center = Vector2.new(y.ViewportSize.X / 2, y.ViewportSize.Y / 2)
+                local distFromCenter = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                
+                if onScreen and distFromCenter <= fovRadius then
+                    redLineTarget = I
+                else
+                    redLineTarget = nil
+                end
+            else
+                redLineTarget = nil
             end
+        else
             redLineTarget = nil
         end
         
+        -- Silent Aim Line (เส้นสีแดงจากกึ่งกลางหน้าจอไปเป้า)
         if F and I and I.Character then
             local target = I.Character
             local humanoid = target:FindFirstChild("Humanoid")
@@ -1939,11 +1814,9 @@ b.Heartbeat:Connect(function()
     if isDowned() then
         local aN = getHRP()
         if aN then
-            -- ถ้ายังไม่มีตำแหน่งใต้ดิน ให้เทเลพอร์ตไป
             if not ah then
                 teleportUnderground()
             else
-                -- รักษาตำแหน่งให้อยู่ใต้ดินตลอด (ไม่ขยับ)
                 aN.CFrame = ah
                 aN.Velocity = Vector3.new(0, 0, 0)
                 aN.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
@@ -1951,7 +1824,6 @@ b.Heartbeat:Connect(function()
             end
         end
     else
-        -- เมื่อฟื้นแล้วให้กลับขึ้นมา
         if ah then
             local aN = getHRP()
             if aN then
@@ -2175,22 +2047,12 @@ end, "SilentAim")
 
 local redLineToggle = CreateSoundToggle(aN, "GUN", "Red Line Lock", false, function(state)
     redLineEnabled = state
-    if not state then
-        clearRedLineBillboard()
-    end
     I = nil
 end, "SilentAimAttach")
 
-local fovToggle = CreateSoundToggle(aN, "GUN", "FOV", false, function(state)
+local fovToggle = CreateSoundToggle(aN, "GUN", "FOV ", false, function(state)
     fovEnabled = state
-    if state then
-        if not fovCircleUI then
-            createFOVCircle()
-        end
-        setFOVVisible(true)
-    else
-        setFOVVisible(false)
-    end
+    setFOVVisible(state)
 end, "FOVToggle")
 
 local fovSlider = aN:Slider({
@@ -2198,7 +2060,7 @@ local fovSlider = aN:Slider({
     Step = 1,
     Value = {Min = 20, Max = 500, Default = fovRadius},
     Callback = function(value)
-        fovRadius = tonumber(value) or 350
+        fovRadius = tonumber(value) or 250
         updateFOVSize(fovRadius)
     end
 })
@@ -2218,11 +2080,8 @@ local aR = aN:Input({
         end
         for aS, aT in pairs(a:GetPlayers()) do
             if aT ~= r then
-                if espCache[aT] and espCache[aT].nameBillboard then
-                    local label = espCache[aT].nameBillboard:FindFirstChildOfClass("TextLabel")
-                    if label then
-                        label.TextColor3 = isPlayerExcluded(aT.Name) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
-                    end
+                if espCache[aT] and espCache[aT].nameDrawing then
+                    espCache[aT].nameDrawing.Color = isPlayerExcluded(aT.Name) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
                 end
             end
         end
@@ -2251,14 +2110,6 @@ ai().GunModsAutoApply = false
 local function isGunTool(aU)
     if not aU or not aU:IsA("Tool") then return false end
     return aT:FindFirstChild(aU.Name) ~= nil or aU.Name:match("Gun") or aU:FindFirstChild("Handle")
-end
-
-local function forceSetAttribute(aU, aV, aW)
-    if aU and aU.SetAttribute then
-        pcall(function()
-            aU:SetAttribute(aV, aW)
-        end)
-    end
 end
 
 local function applyGodGun(aU)
@@ -2438,9 +2289,13 @@ local aY = CreateSoundToggle(aW, "Visual", "Name", false, function(aY)
     else
         for aZ, ba in pairs(a:GetPlayers()) do
             if ba ~= r then
-                if espCache[ba] and espCache[ba].nameBillboard then
-                    espCache[ba].nameBillboard:Destroy()
-                    espCache[ba].nameBillboard = nil
+                if espCache[ba] and espCache[ba].nameDrawing then
+                    espCache[ba].nameDrawing:Remove()
+                    espCache[ba].nameDrawing = nil
+                end
+                if espCache[ba] and espCache[ba].nameConnection then
+                    espCache[ba].nameConnection:Disconnect()
+                    espCache[ba].nameConnection = nil
                 end
             end
         end
@@ -2460,9 +2315,9 @@ local a_ = CreateSoundToggle(aW, "Visual", "Distance", false, function(a_)
     else
         for aZ, ba in pairs(a:GetPlayers()) do
             if ba ~= r then
-                if espCache[ba] and espCache[ba].distanceBillboard then
-                    espCache[ba].distanceBillboard:Destroy()
-                    espCache[ba].distanceBillboard = nil
+                if espCache[ba] and espCache[ba].distanceDrawing then
+                    espCache[ba].distanceDrawing:Remove()
+                    espCache[ba].distanceDrawing = nil
                 end
                 if espCache[ba] and espCache[ba].distanceConnection then
                     espCache[ba].distanceConnection:Disconnect()
@@ -2566,9 +2421,6 @@ local a6 = CreateSoundToggle(a1, "CHARACTER", "Infinite Stamina", false, functio
     end
 end, "AutoSprint")
 
--- =============================================
--- ✅ ANTI AIM ตัวเก่า
--- =============================================
 local a7 = CreateSoundToggle(a1, "CHARACTER", "Anti Lock", false, function(a7)
     ai().Sky = a7
     if a7 then ai().SkyAmount = 1000 end
@@ -2686,9 +2538,6 @@ local be = a1:Slider({
 })
 D:Register("SnapHeight", be)
 
--- =============================================
--- ✅ ANTI AIM V2
--- =============================================
 a1:Divider()
 a1:Section({Title = "Anti Aim V2"})
 
@@ -3030,9 +2879,6 @@ bk:Button({
     end
 })
 
--- =============================================
--- 🟢 SERVER HOP (ปิงน้อย)
--- =============================================
 bk:Button({
     Title = "🟢 Server Hop (ปิงน้อย)",
     Desc = "วาร์ปไปเซิร์ฟที่ปิงน้อยที่สุด",
@@ -3257,4 +3103,4 @@ task.delay(1, function()
     CreateNotification("🫐 Welcome", "Welcome to Juix Hub", 5)
 end)
 
-print("🫐 Juix Hub 2.2 - Silent Aim (ล็อคตัว), Red Line Lock (ล็อคตัว), FOV ใหญ่, Skip Animation, Pull Car Owner, Anti Aim V2, Server Hop, Anti Kill (อยู่เฉยๆ) Ready!")
+print("🫐 Juix Hub 2.2 - Silent Aim (ล็อคตัว), Red Line Lock (ล็อคตาม FOV), FOV (20เหลี่ยม สีรุ้ง) Ready!")
