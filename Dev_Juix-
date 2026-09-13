@@ -1,6 +1,6 @@
 -- =============================================
--- 🫐 JUIX HUB 2.2 - FULL SCRIPT (ลบ Aim Part + ล็อคอก + Anti Kill อยู่เฉยๆ)
--- แก้ไข: เปลี่ยนสี ESP ของตกบนพื้นเป็นสีรุ้ง และระยะ 300
+-- 🫐 JUIX HUB 2.2 - FULL SCRIPT (ลบ Aim Part + ล็อคอก + Anti Kill อยู่ยๆ)
+-- 
 -- =============================================
 
 local a = game:GetService("Players")
@@ -386,6 +386,13 @@ local ai = getgenv or function() return _G end
 ai().Sky = false
 ai().SkyAmount = 1000
 
+-- =============================================
+-- ✅ INFINITE FIRE RATE VARIABLES
+-- =============================================
+local FireRateAttributeName = 'fire_rate'
+local FIRE_RATE_VALUE = math.huge
+_G.InfiniteFireRate = false
+
 local aj = false
 local ak = false
 local al = {}
@@ -689,7 +696,7 @@ local function CheckAndPickup()
             local aI = aH:FindFirstChildWhichIsA("BasePart")
             if aI then
                 local aJ = (u.Position - aI.Position).Magnitude
-                if aJ <= 20 and (aE - (al[aH] or 0)) >= 0 then
+                if aJ <= 50 and (aE - (al[aH] or 0)) >= 0 then
                     table.insert(aF, aH)
                     al[aH] = aE
                 end
@@ -1245,7 +1252,6 @@ local function updateDroppedItemESP()
     local myRoot = r.Character and r.Character:FindFirstChild("HumanoidRootPart")
     if not myRoot then return end
     
-    -- ✅ คำนวณสีรุ้ง (เปลี่ยนไปเรื่อยๆ ตามเวลา)
     local rainbowColor = Color3.fromHSV((tick() % 5) / 5, 1, 1)
 
     for _, item in ipairs(droppedItemsFolder:GetChildren()) do
@@ -1253,7 +1259,6 @@ local function updateDroppedItemESP()
             local primaryPart = item:FindFirstChildWhichIsA("BasePart")
             if primaryPart then
                 local distance = (myRoot.Position - primaryPart.Position).Magnitude
-                -- ✅ จำกัดระยะ 400
                 if distance <= 400 then
                     activeItems[item] = primaryPart
                     
@@ -1276,7 +1281,6 @@ local function updateDroppedItemESP()
         end
     end
 
-    -- อัปเดตตำแหน่งและการแสดงผล
     for item, data in pairs(droppedItemESPSettings.Drawings) do
         if not item.Parent or not data.Part or not data.Part.Parent then
             if data.Text then data.Text:Remove() end
@@ -1288,7 +1292,7 @@ local function updateDroppedItemESP()
                     local dist = myRoot and math.floor((myRoot.Position - data.Part.Position).Magnitude) or 0
                     data.Text.Text = "[" .. item.Name .. " (" .. dist .. "m)]"
                     data.Text.Position = Vector2.new(pos.X, pos.Y)
-                    data.Text.Color = rainbowColor -- ✅ อัปเดตสีรุ้งแบบเรียลไทม์
+                    data.Text.Color = rainbowColor
                     data.Text.Visible = true
                 else
                     data.Text.Visible = false
@@ -1715,7 +1719,7 @@ if E and E.FireServer then
                         aV.CFrame = CFrame.new(r.Character.Head.Position, aS) * CFrame.new(0, 0, -aV.Size.Z / 2)
                         aV.Material = Enum.Material.Neon
                         aV.Transparency = 0.35
-                        aV.Color = Color3.fromRGB(255, 0, 0)
+                        aV.Color = Color3.fromRGB(160, 0, 255)
                         aV.Parent = workspace
                         f:AddItem(aV, 4)
                         return aV
@@ -1727,7 +1731,7 @@ if E and E.FireServer then
                             wait(0.1)
                             if aR and aR.Health < aX then
                                 if aV and aW then
-                                    aW.Color = Color3.fromRGB(0, 255, 0)
+                                    aW.Color = Color3.fromRGB(0, 120, 255)
                                 end
                                 
                                 for aY, aZ in ipairs(I.Character:GetDescendants()) do
@@ -1738,7 +1742,7 @@ if E and E.FireServer then
                                         a_.Anchored = true
                                         a_.CanCollide = false
                                         a_.Material = Enum.Material.Neon
-                                        a_.Color = Color3.fromRGB(255, 0, 0)
+                                        a_.Color = Color3.fromRGB(0, 120, 255)
                                         a_.Transparency = 0.5
                                         a_.Parent = g
                                         
@@ -1753,7 +1757,7 @@ if E and E.FireServer then
                                     aY.Size = Vector3.new(0.2, 0.2, 0.2)
                                     aY.Shape = Enum.PartType.Ball
                                     aY.Material = Enum.Material.Neon
-                                    aY.Color = Color3.fromRGB(255, 0, 0)
+                                    aY.Color = Color3.fromRGB(0, 120, 255)
                                     aY.CFrame = CFrame.new(aP.Position)
                                     aY.Anchored = false
                                     aY.CanCollide = false
@@ -1772,7 +1776,7 @@ if E and E.FireServer then
                                 end
                             else
                                 if aV and aW then
-                                    aW.Color = Color3.fromRGB(255, 0, 0)
+                                    aW.Color = Color3.fromRGB(160, 0, 255)
                                 end
                             end
                         end)
@@ -2109,6 +2113,62 @@ local function revertBoostFPS()
 end
 
 -- =============================================
+-- ✅ INFINITE FIRE RATE FUNCTIONS
+-- =============================================
+local function FindFireRateAttribute(gun)
+    if not gun then return nil end
+    if gun:GetAttribute('fire_rate') ~= nil then
+        return 'fire_rate'
+    end
+    for attrName, attrValue in pairs(gun:GetAttributes()) do
+        if type(attrName) == 'string' and attrName:sub(-3) == '486' then
+            return attrName
+        end
+    end
+    return nil
+end
+
+local function IsGunForFireRate(tool)
+    if not tool or not tool:IsA('Tool') then return false end
+    return tool:GetAttribute('reload_time') 
+        or tool:GetAttribute('AmmoType') 
+        or FindFireRateAttribute(tool)
+end
+
+local function ApplyFireRate(gun)
+    if not gun or not gun:IsA('Tool') then return end
+    local attr = FindFireRateAttribute(gun)
+    if attr then
+        gun:SetAttribute(attr, FIRE_RATE_VALUE)
+    else
+        gun:SetAttribute('fire_rate', FIRE_RATE_VALUE)
+    end
+end
+
+-- Loop บังคับค่า fire rate ตลอดเวลา (เฉพาะเมื่อเปิด)
+task.spawn(function()
+    while task.wait(0.1) do
+        if _G.InfiniteFireRate then
+            local char = r.Character
+            if char then
+                local tool = char:FindFirstChildOfClass('Tool')
+                if tool and IsGunForFireRate(tool) then
+                    ApplyFireRate(tool)
+                end
+            end
+            local bp = r:FindFirstChild('Backpack')
+            if bp then
+                for _, tool in pairs(bp:GetChildren()) do
+                    if IsGunForFireRate(tool) then 
+                        ApplyFireRate(tool) 
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- =============================================
 -- COMBAT TAB
 -- =============================================
 local aN = B:Tab({Title = "COMBAT", Icon = "crosshair"})
@@ -2169,12 +2229,43 @@ D:Register("FriendsList", aR)
 -- =============================================
 local aS = B:Tab({Title = "WEAPON", Icon = "layers"})
 
+-- ✅ Infinite Fire Rate (บนสุด)
+aS:Section({Title = "🔥 AUTO FIRE RATE"})
+
+local infiniteFireRateToggle = CreateSoundToggle(aS, "🔥 INFINITE FIRE RATE", "Infinite Fire Rate", false, function(state)
+    _G.InfiniteFireRate = state
+    if state then
+        -- Apply ทันทีกับ tool ที่ถืออยู่ + ใน backpack
+        local char = r.Character
+        if char then
+            local tool = char:FindFirstChildOfClass('Tool')
+            if tool and IsGunForFireRate(tool) then
+                ApplyFireRate(tool)
+            end
+        end
+        local bp = r:FindFirstChild('Backpack')
+        if bp then
+            for _, tool in pairs(bp:GetChildren()) do
+                if IsGunForFireRate(tool) then 
+                    ApplyFireRate(tool) 
+                end
+            end
+        end
+        if A then A:Notify({Title = "🔥 auto fire rate  ON", Duration = 2}) end
+    else
+        if A then A:Notify({Title = "❌ auto fire Rate OFF", Duration = 2}) end
+    end
+end, "InfiniteFireRate")
+
+-- =============================================
+-- MODS Section
+-- =============================================
 aS:Section({Title = "MODS"})
 
 local aT = c:WaitForChild("Items"):WaitForChild("gun")
 
 ai().FireRateValue = 1000
-ai().AccuracyValue = 1
+ai().AccuracyValue = 99999999
 ai().RecoilValue = 0
 ai().Durability = 999999999
 ai().Auto = true
@@ -2229,7 +2320,7 @@ aS:Slider({
 aS:Slider({
     Title = "Accuracy",
     Step = 0.01,
-    Value = {Min = 0, Max = 1, Default = 1},
+    Value = {Min = 0, Max = 99999999, Default = 99999999},
     Callback = function(aU)
         ai().AccuracyValue = aU
     end
@@ -2329,7 +2420,6 @@ local aW = B:Tab({Title = "ESP", Icon = "eye"})
 
 aW:Section({Title = "Visual"})
 
--- ปุ่มเปิด-ปิด ESP ของตกบนพื้น (สีรุ้ง ระยะ 300)
 CreateSoundToggle(aW, "Visual", "Dropped Items ESP", false, function(state)
     droppedItemESPSettings.Enabled = state
     if not state then
@@ -3192,4 +3282,4 @@ task.delay(1, function()
     CreateNotification("🫐 Welcome", "Welcome to Juix Hub", 5)
 end)
 
-print("🫐 Juix Hub 2.2 - Silent Aim (ล็อคอก), Red Line Lock (ล็อคตาม FOV), FOV (20เหลี่ยม สีรุ้ง) Ready!")
+print("🫐 Juix Hub 2.2 - Silent Aim (ล็อคอก), Red Line Lock (ล็อคตาม FOV), FOV (20เหลี่ยม สีรุ้ง), Infinite Fire Rate Ready!")
