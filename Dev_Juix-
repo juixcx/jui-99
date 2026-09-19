@@ -2265,7 +2265,7 @@ aS:Section({Title = "MODS"})
 local aT = c:WaitForChild("Items"):WaitForChild("gun")
 
 ai().FireRateValue = 1000
-ai().AccuracyValue = 99999999
+ai().AccuracyValue = 4
 ai().RecoilValue = 0
 ai().Durability = 999999999
 ai().Auto = true
@@ -2320,7 +2320,7 @@ aS:Slider({
 aS:Slider({
     Title = "Accuracy",
     Step = 0.01,
-    Value = {Min = 0, Max = 99999999, Default = 99999999},
+    Value = {Min = 0, Max = 10, Default = 10},
     Callback = function(aU)
         ai().AccuracyValue = aU
     end
