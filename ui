@@ -59,7 +59,7 @@ local function SendKeyUsage(playerName, hwid, key, duration, expireTime)
     
     SendToDiscord(
         KeyUsageWebhook,
-        "✅ Key Activated Successfully",
+        "✅ Key Activated",
         "มีผู้ใช้เปิดใช้งานคีย์ใหม่",
         0x00FF00, -- สีเขียว
         {
