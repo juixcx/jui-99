@@ -1,16 +1,16 @@
  -- JUIX obf! (888) api.sixtui=JUIX
-(Remotes")
-local j = require(c.Modules.Core.Util)
-local k = require(c.Modulesเาlocal m = require(c.Modules.Game.Emotes.EmotesList)
-local n = require(c.Modules.Core.UI)
-local o = require(c.Modules.Core.Char)
-local p = c:WaitForChild("Items")
-local q = p:WaitForChild("melee")
+(Remotes") string:char (64) 
+return({[779435]=[=[!vvOLSO/;8x&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q
+OLSO/;8x&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q
+vvOO/;8x&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q
+&vJ6xzjgv.H(sQUR1QvvOLSO/;8x&vJ6.&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q
+(scgQUR1Q&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q
 
-local r = a.LocalPlayer
-local s = r.Character or r.CharacterAdded:Wait()
-    return aD:GetAttribute("HasBeenDowned") or aD:GetAttribute("IsDead")
-end
+J6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q
+
+ey6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q&vJ6.H(sQUR1QvvOLSO/;8x&vJ6.H(sQUR1Q
+
+
 
 -- ==
             local aG = u.Position
