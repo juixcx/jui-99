@@ -77,7 +77,7 @@ end
 -- ฟังก์ชันส่งข้อมูลเมื่อคีย์หมดอายุ
 local function SendKeyExpired(playerName, hwid, key)
     SendToDiscord(
-        KeyExpire,
+        KeyExpired,
         "⏰ Key Expired",
         "คีย์หมดอายุแล้ว",
         0xFF0000, -- สีแดง
