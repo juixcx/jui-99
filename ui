@@ -1,5 +1,5 @@
 --[[\
-    Juix Hub Key System UI + Modern Notification Popup (Bottom-Right) + Neon Fall Effect + Discord Webhook
+    Juix
 ]]--
 
 local Players = game:GetService("Players")
@@ -59,7 +59,7 @@ local function SendKeyUsage(playerName, hwid, key, duration, expireTime)
     
     SendToDiscord(
         KeyUsageWebhook,
-        "✅ Key Activated",
+        "✅ Key Activated FOR MOBILE",
         "มีผู้ใช้เปิดใช้งานคีย์ใหม่",
         0x00FF00, -- สีเขียว
         {
