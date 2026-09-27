@@ -353,7 +353,7 @@ local function RunMainScript(key, expireTime)
 
     print("Juix Hub: กำลังโหลดสคริปต์...")
     coroutine.wrap(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/juixcx/jui-99/refs/heads/juixx/juix%3Adev", true))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/juixcx/jui-99/refs/heads/juixx/srcjuix", true))()
     end)()
     
     if expireTime ~= -1 then
