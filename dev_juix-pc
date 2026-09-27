@@ -1,5 +1,6 @@
 -- =============================================
--- 🫐 JUIX HUB 2.2 
+-- 🫐 JUIX HUB 2.2 now
+-- 
 -- =============================================
 
 local a = game:GetService("Players")
@@ -35,204 +36,211 @@ r:GetMouse()
 local z = d.TouchEnabled and not d.KeyboardEnabled
 
 -- =============================================
--- 🫐 ฟังก์ชันเล่นเสียง
+-- 🫐 ฟังก์ชันเล่นเสียง (มี Error Handling)
 -- =============================================
 local function PlaySound(SoundId, Volume)
-    local Sound = Instance.new("Sound")
-    Sound.SoundId = "rbxassetid://" .. SoundId
-    Sound.Volume = Volume or 4
-    Sound.Parent = g
-    Sound:Play()
-    task.delay(2, function()
-        if Sound then Sound:Destroy() end
+    local success, err = pcall(function()
+        local Sound = Instance.new("Sound")
+        Sound.SoundId = "rbxassetid://" .. SoundId
+        Sound.Volume = Volume or 4
+        Sound.Parent = g
+        Sound:Play()
+        task.delay(2, function()
+            if Sound then Sound:Destroy() end
+        end)
     end)
+    if not success then
+        -- ไม่ทำอะไรถ้าเล่นเสียงไม่ได้
+    end
 end
 
 -- =============================================
--- ✅ ระบบจัดการ Notification (แก้ไขให้รันได้)
+-- ✅ ระบบจัดการ Notification (ไม่ซ้อนกัน)
 -- =============================================
 local activeNotifications = {}
 
 local function CreateNotification(Title, Message, Duration)
-    local PlayerGui = r:FindFirstChild("PlayerGui")
-    if not PlayerGui then
-        PlayerGui = r:WaitForChild("PlayerGui", 5)
-        if not PlayerGui then return end
-    end
-    
-    for i = #activeNotifications, 1, -1 do
-        if not activeNotifications[i] or not activeNotifications[i].Parent then
-            table.remove(activeNotifications, i)
-        end
-    end
-    
-    local yPosition = 90 + (#activeNotifications * 80)
-    
-    local NotifyGui = Instance.new("ScreenGui")
-    NotifyGui.Name = "JuixNotify"
-    NotifyGui.ResetOnSpawn = false
-    NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    NotifyGui.Parent = PlayerGui
-    
-    local Frame = Instance.new("Frame")
-    Frame.Name = "NotifyFrame"
-    Frame.Size = UDim2.new(0, 280, 0, 70)
-    Frame.Position = UDim2.new(1, 300, 1, -yPosition)
-    Frame.AnchorPoint = Vector2.new(0, 1)
-    Frame.BackgroundColor3 = Color3.fromRGB(20, 15, 40)
-    Frame.BackgroundTransparency = 0.3
-    Frame.BorderSizePixel = 0
-    Frame.ClipsDescendants = true
-    Frame.Parent = NotifyGui
-    
-    local ImageBg = Instance.new("ImageLabel")
-    ImageBg.Size = UDim2.new(1, 0, 1, 0)
-    ImageBg.BackgroundTransparency = 1
-    ImageBg.Image = "rbxassetid://10218442298"
-    ImageBg.ScaleType = Enum.ScaleType.Crop
-    ImageBg.Parent = Frame
-    
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 10)
-    Corner.Parent = Frame
-    
-    local Gradient = Instance.new("UIGradient")
-    Gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 60, 200)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(130, 80, 220)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 40, 180))
-    })
-    Gradient.Rotation = 45
-    Gradient.Transparency = NumberSequence.new(0.5)
-    Gradient.Parent = Frame
-    
-    local Stroke = Instance.new("UIStroke")
-    Stroke.Color = Color3.fromRGB(150, 100, 255)
-    Stroke.Thickness = 1.5
-    Stroke.Transparency = 0.3
-    Stroke.Parent = Frame
-    
-    local Icon = Instance.new("TextLabel")
-    Icon.Size = UDim2.new(0, 30, 0, 30)
-    Icon.Position = UDim2.new(0, 15, 0, 10)
-    Icon.BackgroundTransparency = 1
-    Icon.Text = "🫐"
-    Icon.TextSize = 22
-    Icon.ZIndex = 2
-    Icon.Parent = Frame
-    
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(1, -60, 0, 20)
-    TitleLabel.Position = UDim2.new(0, 55, 0, 8)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = Title
-    TitleLabel.TextColor3 = Color3.fromRGB(200, 170, 255)
-    TitleLabel.TextSize = 14
-    TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLabel.ZIndex = 2
-    TitleLabel.Parent = Frame
-    
-    local MessageLabel = Instance.new("TextLabel")
-    MessageLabel.Size = UDim2.new(1, -60, 0, 20)
-    MessageLabel.Position = UDim2.new(0, 55, 0, 30)
-    MessageLabel.BackgroundTransparency = 1
-    MessageLabel.Text = Message
-    MessageLabel.TextColor3 = Color3.fromRGB(180, 180, 220)
-    MessageLabel.TextSize = 12
-    MessageLabel.Font = Enum.Font.Gotham
-    MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
-    MessageLabel.ZIndex = 2
-    MessageLabel.Parent = Frame
-    
-    local BarBg = Instance.new("Frame")
-    BarBg.Size = UDim2.new(1, -30, 0, 3)
-    BarBg.Position = UDim2.new(0, 15, 0, 58)
-    BarBg.BackgroundColor3 = Color3.fromRGB(50, 40, 80)
-    BarBg.BackgroundTransparency = 0.5
-    BarBg.BorderSizePixel = 0
-    BarBg.ZIndex = 2
-    BarBg.Parent = Frame
-    
-    local BarCorner = Instance.new("UICorner")
-    BarCorner.CornerRadius = UDim.new(0, 2)
-    BarCorner.Parent = BarBg
-    
-    local Bar = Instance.new("Frame")
-    Bar.Size = UDim2.new(1, 0, 1, 0)
-    Bar.BackgroundColor3 = Color3.fromRGB(150, 100, 255)
-    Bar.BorderSizePixel = 0
-    Bar.ZIndex = 2
-    Bar.Parent = BarBg
-    
-    local BarCorner2 = Instance.new("UICorner")
-    BarCorner2.CornerRadius = UDim.new(0, 2)
-    BarCorner2.Parent = Bar
-    
-    local TweenIn = e:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Position = UDim2.new(1, -300, 1, -yPosition)
-    })
-    TweenIn:Play()
-    
-    local TweenBar = e:Create(Bar, TweenInfo.new(Duration or 3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 0, 1, 0)
-    })
-    TweenBar:Play()
-    
-    table.insert(activeNotifications, NotifyGui)
-    
-    task.delay((Duration or 3) + 0.5, function()
-        local TweenOut = e:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-            Position = UDim2.new(1, 300, 1, -yPosition)
-        })
-        TweenOut:Play()
-        TweenOut.Completed:Wait()
+    local success, err = pcall(function()
+        local PlayerGui = r:WaitForChild("PlayerGui")
         
         for i = #activeNotifications, 1, -1 do
-            if activeNotifications[i] == NotifyGui then
+            if not activeNotifications[i] or not activeNotifications[i].Parent then
                 table.remove(activeNotifications, i)
-                break
             end
         end
         
-        NotifyGui:Destroy()
+        local yPosition = 90 + (#activeNotifications * 80)
         
-        for i, notif in ipairs(activeNotifications) do
-            local frame = notif:FindFirstChild("NotifyFrame")
-            if frame then
-                local newY = 90 + ((i - 1) * 80)
-                frame:TweenPosition(
-                    UDim2.new(1, -300, 1, -newY),
-                    Enum.EasingDirection.Out,
-                    Enum.EasingStyle.Quad,
-                    0.3,
-                    true
-                )
+        local NotifyGui = Instance.new("ScreenGui")
+        NotifyGui.Name = "JuixNotify"
+        NotifyGui.ResetOnSpawn = false
+        NotifyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        NotifyGui.Parent = PlayerGui
+        
+        local Frame = Instance.new("Frame")
+        Frame.Name = "NotifyFrame"
+        Frame.Size = UDim2.new(0, 280, 0, 70)
+        Frame.Position = UDim2.new(1, -300, 1, -yPosition)
+        Frame.AnchorPoint = Vector2.new(0, 1)
+        Frame.BackgroundColor3 = Color3.fromRGB(20, 15, 40)
+        Frame.BackgroundTransparency = 0.3
+        Frame.BorderSizePixel = 0
+        Frame.ClipsDescendants = true
+        Frame.Parent = NotifyGui
+        
+        local ImageBg = Instance.new("ImageLabel")
+        ImageBg.Size = UDim2.new(1, 0, 1, 0)
+        ImageBg.BackgroundTransparency = 1
+        ImageBg.Image = "rbxassetid://10218442298"
+        ImageBg.ScaleType = Enum.ScaleType.Crop
+        ImageBg.Parent = Frame
+        
+        local Corner = Instance.new("UICorner")
+        Corner.CornerRadius = UDim.new(0, 10)
+        Corner.Parent = Frame
+        
+        local Gradient = Instance.new("UIGradient")
+        Gradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 60, 200)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(130, 80, 220)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 40, 180))
+        })
+        Gradient.Rotation = 45
+        Gradient.Transparency = NumberSequence.new(0.5)
+        Gradient.Parent = Frame
+        
+        local Stroke = Instance.new("UIStroke")
+        Stroke.Color = Color3.fromRGB(150, 100, 255)
+        Stroke.Thickness = 1.5
+        Stroke.Transparency = 0.3
+        Stroke.Parent = Frame
+        
+        local Icon = Instance.new("TextLabel")
+        Icon.Size = UDim2.new(0, 30, 0, 30)
+        Icon.Position = UDim2.new(0, 15, 0, 10)
+        Icon.BackgroundTransparency = 1
+        Icon.Text = "🫐"
+        Icon.TextSize = 22
+        Icon.ZIndex = 2
+        Icon.Parent = Frame
+        
+        local TitleLabel = Instance.new("TextLabel")
+        TitleLabel.Size = UDim2.new(1, -60, 0, 20)
+        TitleLabel.Position = UDim2.new(0, 55, 0, 8)
+        TitleLabel.BackgroundTransparency = 1
+        TitleLabel.Text = Title
+        TitleLabel.TextColor3 = Color3.fromRGB(200, 170, 255)
+        TitleLabel.TextSize = 14
+        TitleLabel.Font = Enum.Font.GothamBold
+        TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        TitleLabel.ZIndex = 2
+        TitleLabel.Parent = Frame
+        
+        local MessageLabel = Instance.new("TextLabel")
+        MessageLabel.Size = UDim2.new(1, -60, 0, 20)
+        MessageLabel.Position = UDim2.new(0, 55, 0, 30)
+        MessageLabel.BackgroundTransparency = 1
+        MessageLabel.Text = Message
+        MessageLabel.TextColor3 = Color3.fromRGB(180, 180, 220)
+        MessageLabel.TextSize = 12
+        MessageLabel.Font = Enum.Font.Gotham
+        MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+        MessageLabel.ZIndex = 2
+        MessageLabel.Parent = Frame
+        
+        local BarBg = Instance.new("Frame")
+        BarBg.Size = UDim2.new(1, -30, 0, 3)
+        BarBg.Position = UDim2.new(0, 15, 0, 58)
+        BarBg.BackgroundColor3 = Color3.fromRGB(50, 40, 80)
+        BarBg.BackgroundTransparency = 0.5
+        BarBg.BorderSizePixel = 0
+        BarBg.ZIndex = 2
+        BarBg.Parent = Frame
+        
+        local BarCorner = Instance.new("UICorner")
+        BarCorner.CornerRadius = UDim.new(0, 2)
+        BarCorner.Parent = BarBg
+        
+        local Bar = Instance.new("Frame")
+        Bar.Size = UDim2.new(1, 0, 1, 0)
+        Bar.BackgroundColor3 = Color3.fromRGB(150, 100, 255)
+        Bar.BorderSizePixel = 0
+        Bar.ZIndex = 2
+        Bar.Parent = BarBg
+        
+        local BarCorner2 = Instance.new("UICorner")
+        BarCorner2.CornerRadius = UDim.new(0, 2)
+        BarCorner2.Parent = Bar
+        
+        Frame.Position = UDim2.new(1, 300, 1, -yPosition)
+        local TweenIn = e:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Position = UDim2.new(1, -300, 1, -yPosition)
+        })
+        TweenIn:Play()
+        
+        local TweenBar = e:Create(Bar, TweenInfo.new(Duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 0, 1, 0)
+        })
+        TweenBar:Play()
+        
+        table.insert(activeNotifications, NotifyGui)
+        
+        task.delay(Duration + 0.5, function()
+            local TweenOut = e:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                Position = UDim2.new(1, 300, 1, -yPosition)
+            })
+            TweenOut:Play()
+            TweenOut.Completed:Wait()
+            
+            for i = #activeNotifications, 1, -1 do
+                if activeNotifications[i] == NotifyGui then
+                    table.remove(activeNotifications, i)
+                    break
+                end
             end
-        end
+            
+            NotifyGui:Destroy()
+            
+            for i, notif in ipairs(activeNotifications) do
+                local frame = notif:FindFirstChild("NotifyFrame")
+                if frame then
+                    local newY = 90 + ((i - 1) * 80)
+                    frame:TweenPosition(
+                        UDim2.new(1, -300, 1, -newY),
+                        Enum.EasingDirection.Out,
+                        Enum.EasingStyle.Quad,
+                        0.3,
+                        true
+                    )
+                end
+            end
+        end)
+        
+        return NotifyGui
     end)
     
-    return NotifyGui
+    if not success then
+        print("[Juix] Notification Error:", err)
+        return nil
+    end
+    return success
 end
 
 -- =============================================
--- ✅ โหลด WindUI (ป้องกัน error)
+-- ✅ โหลด UI Library (พร้อมระบบสำรอง)
 -- =============================================
-local A
-local loadSuccess = pcall(function()
+local A = nil
+local B = nil
+local UI_LOADED = false
+
+-- พยายามโหลด WindUI
+pcall(function()
     A = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 end)
 
-if not loadSuccess or not A then
-    A = nil
-end
-
--- =============================================
--- ✅ สร้าง Window (ป้องกัน error)
--- =============================================
-local B
+-- ตรวจสอบว่า UI Library โหลดสำเร็จหรือไม่
 if A then
-    pcall(function()
+    local success, err = pcall(function()
         B = A:CreateWindow({
             Title = "Juix Hub 2.2",
             Icon = "rbxassetid://132871398674601",
@@ -244,34 +252,60 @@ if A then
             Resizable = true,
             KeyCode = Enum.KeyCode.G
         })
-        
-        if B then
-            B:EditOpenButton({
-                Title = "JUIX HUB 2.2",
-                Icon = "rbxassetid://132871398674601",
-                CornerRadius = UDim.new(0, 16),
-                StrokeThickness = 2,
-                Color = ColorSequence.new(
-                    Color3.fromHex("#1a1a1a"),
-                    Color3.fromHex("#FFD700")
-                ),
-                OnlyMobile = false,
-                Enabled = true,
-                Draggable = true,
-            })
-            
-            B:Tag({
-                Title = "Juix Hub 2.2 | Premium",
-                Icon = "",
-                Color = Color3.fromHex("#FFD700"),
-                Radius = 13,
-            })
-        end
-    end)
-end
 
--- Fallback หากสร้างไม่สำเร็จ
-if not B then
+        B:EditOpenButton({
+            Title = "JUIX HUB 2.2",
+            Icon = "rbxassetid://132871398674601",
+            CornerRadius = UDim.new(0, 16),
+            StrokeThickness = 2,
+            Color = ColorSequence.new(
+                Color3.fromHex("#1a1a1a"),
+                Color3.fromHex("#FFD700")
+            ),
+            OnlyMobile = false,
+            Enabled = true,
+            Draggable = true,
+        })
+
+        B:Tag({
+            Title = "Juix Hub 2.2 | Premium",
+            Icon = "",
+            Color = Color3.fromHex("#FFD700"),
+            Radius = 13,
+        })
+        
+        UI_LOADED = true
+        print("[Juix] UI Loaded Successfully!")
+    end)
+    
+    if not success then
+        print("[Juix] UI Create Error:", err)
+        UI_LOADED = false
+        B = {
+            Tab = function(C)
+                return {
+                    Section = function() end,
+                    Toggle = function() end,
+                    Slider = function() end,
+                    Button = function() end,
+                    Input = function() return {} end,
+                    Divider = function() end,
+                    Dropdown = function() end
+                }
+            end,
+            ConfigManager = {
+                CreateConfig = function() return {
+                    Register = function() end,
+                    Save = function() end,
+                    Load = function() end,
+                    Delete = function() end
+                } end
+            }
+        }
+    end
+else
+    print("[Juix] WindUI Library not loaded! Using fallback mode.")
+    UI_LOADED = false
     B = {
         Tab = function(C)
             return {
@@ -288,15 +322,141 @@ if not B then
             CreateConfig = function() return {
                 Register = function() end,
                 Save = function() end,
-                Delete = function() end,
-                Load = function() end
+                Load = function() end,
+                Delete = function() end
             } end
         }
     }
 end
 
-local C = B.ConfigManager
-local D = C:CreateConfig("JuixHubConfig")
+-- ✅ สร้าง Config Manager (รองรับทั้ง UI โหลดและไม่โหลด)
+local C = nil
+local D = nil
+
+if UI_LOADED and B and B.ConfigManager then
+    C = B.ConfigManager
+    local success, err = pcall(function()
+        D = C:CreateConfig("JuixHubConfig")
+    end)
+    if not success then
+        D = {
+            Register = function() end,
+            Save = function() end,
+            Load = function() end,
+            Delete = function() end
+        }
+    end
+else
+    D = {
+        Register = function() end,
+        Save = function() end,
+        Load = function() end,
+        Delete = function() end
+    }
+end
+
+-- =============================================
+-- ✅ Safe UI Helper Functions
+-- =============================================
+local function SafeTab(Title, Icon)
+    if UI_LOADED and B then
+        local success, tab = pcall(function()
+            return B:Tab({Title = Title, Icon = Icon})
+        end)
+        if success then return tab end
+    end
+    
+    return {
+        Section = function() end,
+        Toggle = function() end,
+        Slider = function() end,
+        Button = function() end,
+        Input = function() return {} end,
+        Divider = function() end,
+        Dropdown = function() end
+    }
+end
+
+local function SafeSlider(Tab, Title, Step, Min, Max, Default, Callback)
+    if UI_LOADED and Tab then
+        local success, slider = pcall(function()
+            return Tab:Slider({
+                Title = Title,
+                Step = Step,
+                Value = {Min = Min, Max = Max, Default = Default},
+                Callback = Callback
+            })
+        end)
+        if success then return slider end
+    end
+    return nil
+end
+
+local function SafeButton(Tab, Title, Desc, Callback)
+    if UI_LOADED and Tab then
+        local success, btn = pcall(function()
+            return Tab:Button({
+                Title = Title,
+                Desc = Desc or "",
+                Callback = Callback
+            })
+        end)
+        if success then return btn end
+    end
+    return nil
+end
+
+local function SafeInput(Tab, Title, Placeholder, Callback)
+    if UI_LOADED and Tab then
+        local success, input = pcall(function()
+            return Tab:Input({
+                Title = Title,
+                Value = "",
+                InputIcon = "send",
+                Type = "Input",
+                Placeholder = Placeholder or "",
+                Callback = Callback
+            })
+        end)
+        if success then return input end
+    end
+    return nil
+end
+
+-- =============================================
+-- ✅ CreateSoundToggle (รองรับ UI ไม่โหลด)
+-- =============================================
+local function CreateSoundToggle(Tab, Section, Title, Default, Callback, RegName)
+    if not UI_LOADED or not Tab then
+        return {
+            Set = function() end,
+            Get = function() return Default end
+        }
+    end
+    
+    local success, Toggle = pcall(function()
+        return Tab:Toggle({
+            Title = Title,
+            Default = Default,
+            Callback = function(Value)
+                PlaySound("116394299154002", 0.5)
+                Callback(Value)
+            end
+        })
+    end)
+    
+    if not success then
+        return {
+            Set = function() end,
+            Get = function() return Default end
+        }
+    end
+    
+    if RegName and D then
+        pcall(function() D:Register(RegName, Toggle) end)
+    end
+    return Toggle
+end
 
 local E
 pcall(function()
@@ -308,17 +468,14 @@ local G = false
 local H = 120
 local I
 local J
-local K
-pcall(function()
-    K = Drawing.new("Line")
-    K.Thickness = 1
-    K.Color = Color3.fromRGB(255, 50, 50)
-    K.Transparency = 1
-    K.Visible = false
-end)
+local K = Drawing.new("Line")
+K.Thickness = 1
+K.Color = Color3.fromRGB(255, 50, 50)
+K.Transparency = 1
+K.Visible = false
 
 -- =============================================
--- ✅ FOV Drawing (20 เหลี่ยม สีรุ้ง)
+-- ✅ FOV Drawing (เปลี่ยนเป็น 20 เหลี่ยม สีรุ้ง)
 -- =============================================
 local fovEnabled = false
 local fovRadius = 250
@@ -326,18 +483,11 @@ local fovSides = 20
 local fovDrawings = {}
 
 for i = 1, fovSides do
-    local line
-    pcall(function()
-        line = Drawing.new("Line")
-        if line then
-            line.Visible = false
-            line.Thickness = 2
-            line.Transparency = 1
-        end
-    end)
-    if line then
-        table.insert(fovDrawings, line)
-    end
+    local line = Drawing.new("Line")
+    line.Visible = false
+    line.Thickness = 2
+    line.Transparency = 1
+    table.insert(fovDrawings, line)
 end
 
 local function updateFOVDecagon()
@@ -366,9 +516,7 @@ end
 
 local function setFOVVisible(visible)
     for _, line in ipairs(fovDrawings) do
-        if line then
-            line.Visible = visible
-        end
+        line.Visible = visible
     end
 end
 
@@ -384,7 +532,7 @@ b.RenderStepped:Connect(function()
 end)
 
 -- =============================================
--- ✅ RED LINE LOCK
+-- ✅ RED LINE LOCK (ล็อคอกตาม FOV)
 -- =============================================
 local redLineEnabled = false
 local redLineTarget = nil
@@ -667,7 +815,7 @@ local function getHRP()
 end
 
 -- =============================================
--- เทเลพอร์ตใต้แผนที่
+-- เทเลพอร์ตใต้แผนที่ (อยู่เฉยๆ ไม่ขยับ)
 -- =============================================
 local function teleportUnderground()
     local aD = getHRP()
@@ -857,7 +1005,7 @@ end
 -- =============================================
 -- เช็คว่าเป็น Tool ระยะประชิด
 -- =============================================
-local function isMeleeToolCheck(aE)
+local function isMeleeTool(aE)
     if not aE then return false end
     if aE.Name == "Fists" then return true end
     
@@ -882,7 +1030,7 @@ local function AttackNearby()
     if not aE or not aE.PrimaryPart then return end
     
     local aF = getActiveTool()
-    if not aF or not isMeleeToolCheck(aF) then return end
+    if not aF or not isMeleeTool(aF) then return end
     
     local aG, aH = pcall(function()
         return aF.Parent
@@ -943,6 +1091,12 @@ local function StartAutoAttack()
 end
 
 -- =============================================
+-- สร้างเอฟเฟค Neon
+-- =============================================
+local function createNeonEffectAtPosition(aF, aG)
+end
+
+-- =============================================
 -- เทเลพอร์ต (Snap)
 -- =============================================
 local function performTeleport()
@@ -959,6 +1113,9 @@ local function performTeleport()
     aH.PlayOnRemove = true
     aH.Parent = u
     aH:Destroy()
+    
+    createNeonEffectAtPosition(aF, 1.5)
+    createNeonEffectAtPosition(aG, 2)
 end
 
 -- =============================================
@@ -1267,7 +1424,7 @@ end
 local espCache = {}
 
 -- =============================================
--- ✅ ESP DROPPED ITEMS
+-- ✅ ESP DROPPED ITEMS (แก้ไข: สีรุ้ง + ระยะ 300)
 -- =============================================
 local droppedItemESPSettings = {
     Enabled = false,
@@ -1293,25 +1450,18 @@ local function updateDroppedItemESP()
                     activeItems[item] = primaryPart
                     
                     if not droppedItemESPSettings.Drawings[item] then
-                        local textDrawing
-                        pcall(function()
-                            textDrawing = Drawing.new("Text")
-                            if textDrawing then
-                                textDrawing.Center = true
-                                textDrawing.Outlined = true
-                                textDrawing.OutlineColor = Color3.fromRGB(0, 0, 0)
-                                textDrawing.Size = 14
-                                textDrawing.Font = 2
-                                textDrawing.Visible = false
-                            end
-                        end)
+                        local textDrawing = Drawing.new("Text")
+                        textDrawing.Center = true
+                        textDrawing.Outlined = true
+                        textDrawing.OutlineColor = Color3.fromRGB(0, 0, 0)
+                        textDrawing.Size = 14
+                        textDrawing.Font = 2
+                        textDrawing.Visible = false
                         
-                        if textDrawing then
-                            droppedItemESPSettings.Drawings[item] = {
-                                Text = textDrawing,
-                                Part = primaryPart
-                            }
-                        end
+                        droppedItemESPSettings.Drawings[item] = {
+                            Text = textDrawing,
+                            Part = primaryPart
+                        }
                     end
                 end
             end
@@ -1355,22 +1505,15 @@ local function createESPName(player)
         return
     end
     
-    local textDrawing
-    pcall(function()
-        textDrawing = Drawing.new("Text")
-        if textDrawing then
-            textDrawing.Center = true
-            textDrawing.Outlined = true
-            textDrawing.OutlineColor = Color3.fromRGB(0, 0, 0)
-            textDrawing.Size = 18
-            textDrawing.Font = 2
-            textDrawing.Visible = false
-            textDrawing.Color = isPlayerExcluded(player.Name) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
-            textDrawing.Text = player.Name
-        end
-    end)
-    
-    if not textDrawing then return end
+    local textDrawing = Drawing.new("Text")
+    textDrawing.Center = true
+    textDrawing.Outlined = true
+    textDrawing.OutlineColor = Color3.fromRGB(0, 0, 0)
+    textDrawing.Size = 18
+    textDrawing.Font = 2
+    textDrawing.Visible = false
+    textDrawing.Color = isPlayerExcluded(player.Name) and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
+    textDrawing.Text = player.Name
     
     local updateConnection
     local function updateNameESP()
@@ -1411,22 +1554,15 @@ local function createESPDistance(player)
         return
     end
     
-    local textDrawing
-    pcall(function()
-        textDrawing = Drawing.new("Text")
-        if textDrawing then
-            textDrawing.Center = true
-            textDrawing.Outlined = true
-            textDrawing.OutlineColor = Color3.fromRGB(0, 0, 0)
-            textDrawing.Size = 15
-            textDrawing.Font = 2
-            textDrawing.Visible = false
-            textDrawing.Color = Color3.fromRGB(255, 255, 255)
-            textDrawing.Text = "[?m]"
-        end
-    end)
-    
-    if not textDrawing then return end
+    local textDrawing = Drawing.new("Text")
+    textDrawing.Center = true
+    textDrawing.Outlined = true
+    textDrawing.OutlineColor = Color3.fromRGB(0, 0, 0)
+    textDrawing.Size = 15
+    textDrawing.Font = 2
+    textDrawing.Visible = false
+    textDrawing.Color = Color3.fromRGB(255, 255, 255)
+    textDrawing.Text = "[?m]"
     
     local updateConnection
     local function updateDistanceESP()
@@ -1472,16 +1608,16 @@ end
 local function removeAllESP(player)
     if espCache[player] then
         if espCache[player].nameDrawing then
-            pcall(function() espCache[player].nameDrawing:Remove() end)
+            espCache[player].nameDrawing:Remove()
         end
         if espCache[player].distanceDrawing then
-            pcall(function() espCache[player].distanceDrawing:Remove() end)
+            espCache[player].distanceDrawing:Remove()
         end
         if espCache[player].nameConnection then
-            pcall(function() espCache[player].nameConnection:Disconnect() end)
+            espCache[player].nameConnection:Disconnect()
         end
         if espCache[player].distanceConnection then
-            pcall(function() espCache[player].distanceConnection:Disconnect() end)
+            espCache[player].distanceConnection:Disconnect()
         end
         espCache[player] = nil
     end
@@ -1493,26 +1629,17 @@ end
 local function createESP(aG)
     if L[aG] then return end
     
-    local aJ, aK
-    pcall(function()
-        aJ = Drawing.new("Square")
-        if aJ then
-            aJ.Filled = false
-            aJ.Thickness = 1
-            aJ.Color = Color3.fromRGB(0, 0, 0)
-            aJ.Transparency = 0.9
-            aJ.Visible = false
-        end
-        
-        aK = Drawing.new("Square")
-        if aK then
-            aK.Filled = true
-            aK.Transparency = 0.9
-            aK.Visible = false
-        end
-    end)
+    local aJ = Drawing.new("Square")
+    aJ.Filled = false
+    aJ.Thickness = 1
+    aJ.Color = Color3.fromRGB(0, 0, 0)
+    aJ.Transparency = 0.9
+    aJ.Visible = false
     
-    if not aJ or not aK then return end
+    local aK = Drawing.new("Square")
+    aK.Filled = true
+    aK.Transparency = 0.9
+    aK.Visible = false
     
     local aL = {aJ, aK}
     
@@ -1600,8 +1727,10 @@ local function loadESP()
     a.PlayerRemoving:Connect(function(aG)
         if L[aG] then
             for aH, aI in pairs(L[aG].drawings) do
-                if aI and aI.Remove then
-                    pcall(function() aI:Remove() end)
+                if aI and aI.Destroy then
+                    pcall(function() aI:Destroy() end)
+                elseif typeof(aI) == "table" and aI.Visible ~= nil then
+                    aI.Visible = false
                 end
             end
             
@@ -1681,7 +1810,7 @@ end
 -- =============================================
 -- ทำนายตำแหน่ง (Velocity)
 -- =============================================
-local function predictPosition2(aM, aN)
+local function predictPosition(aM, aN)
     if not aM then return Vector3.zero end
     
     local aO = aM.Parent
@@ -1889,7 +2018,7 @@ b.RenderStepped:Connect(function()
             local humanoid = target:FindFirstChild("Humanoid")
             local rootPart = target:FindFirstChild("HumanoidRootPart")
             
-            if humanoid and humanoid.Health > 0 and rootPart and K then
+            if humanoid and humanoid.Health > 0 and rootPart then
                 local center = Vector2.new(y.ViewportSize.X / 2, y.ViewportSize.Y / 2)
                 local targetPos = rootPart.Position + Vector3.new(0, 1.5, 0)
                 aL = aL:Lerp(targetPos, aJ)
@@ -1905,10 +2034,10 @@ b.RenderStepped:Connect(function()
                     K.Visible = false
                 end
             else
-                if K then K.Visible = false end
+                K.Visible = false
             end
         else
-            if K then K.Visible = false end
+            K.Visible = false
             aL = Vector3.new()
         end
         
@@ -1989,12 +2118,14 @@ if r.Character then setupCharacter(r.Character) end
 
 d.InputBegan:Connect(function(aN, aO)
     if aO then return end
-    if aN.KeyCode == Enum.KeyCode.G and A and B then
-        if B.Toggle then
-            B:Toggle()
-        elseif B.SetVisible then
-            B:SetVisible(not B.Visible)
-        end
+    if aN.KeyCode == Enum.KeyCode.G and A and B and UI_LOADED then
+        pcall(function()
+            if B.Toggle then
+                B:Toggle()
+            elseif B.SetVisible then
+                B:SetVisible(not B.Visible)
+            end
+        end)
     end
 end)
 
@@ -2025,7 +2156,7 @@ end)
 StartAutoAttack()
 
 for aN, aO in ipairs({"gun", "melee", "throwable", "consumable", "farming", "misc", "rod", "fish"}) do
-    pcall(function()
+    local success, err = pcall(function()
         registerItems(c:WaitForChild("Items")[aO])
     end)
 end
@@ -2065,59 +2196,18 @@ task.spawn(function()
     end
 end)
 
--- ฟังก์ชัน SetupSkipCrate (ป้องกัน error)
-local function SetupSkipCrate()
-end
-
 c.ChildAdded:Connect(function(aN)
     if aN.Name == "Remotes" then
-        SetupSkipCrate()
+        -- SetupSkipCrate() - ไม่มีฟังก์ชันนี้
     end
 end)
 
--- =============================================
--- ตัวแปร highlight (ป้องกัน error)
--- =============================================
 local highlightEnabled = false
-local highlights = {}
-
-local function createHighlight(character)
-    if not character then return nil end
-    local highlight = Instance.new("Highlight")
-    highlight.Adornee = character
-    highlight.FillColor = Color3.fromRGB(0, 170, 255)
-    highlight.OutlineColor = Color3.fromRGB(0, 170, 255)
-    highlight.Parent = workspace
-    return highlight
-end
-
-local function updateHighlight(player)
-    if player == r then return end
-    if not player.Character then return end
-    
-    if highlightEnabled then
-        if highlights[player] then
-            highlights[player]:Destroy()
-        end
-        highlights[player] = createHighlight(player.Character)
-    else
-        if highlights[player] then
-            highlights[player]:Destroy()
-            highlights[player] = nil
-        end
-    end
-end
-
-local function updateHighlights()
-    for _, player in pairs(a:GetPlayers()) do
-        updateHighlight(player)
-    end
-end
 
 a.PlayerAdded:Connect(function(aN)
     aN.CharacterAdded:Connect(function(aO)
         if highlightEnabled then
-            highlights[aN] = createHighlight(aO)
+            -- highlights[aN] = createHighlight(aO) - ไม่มีฟังก์ชันนี้
         end
     end)
 end)
@@ -2125,8 +2215,10 @@ end)
 a.PlayerRemoving:Connect(function(aN)
     if L[aN] then
         for aO, aP in pairs(L[aN].drawings) do
-            if aP and aP.Remove then
-                pcall(function() aP:Remove() end)
+            if aP and aP.Destroy then
+                pcall(function() aP:Destroy() end)
+            elseif typeof(aP) == "table" and aP.Visible ~= nil then
+                aP.Visible = false
             end
         end
         if L[aN].conn then
@@ -2138,33 +2230,7 @@ a.PlayerRemoving:Connect(function(aN)
     removeAllESP(aN)
 end)
 
-task.spawn(function()
-    while task.wait(1) do
-        if highlightEnabled then
-            updateHighlights()
-        end
-    end
-end)
-
 loadESP()
-
--- =============================================
--- 🫐 ฟังก์ชัน Toggle พร้อมเสียง
--- =============================================
-local function CreateSoundToggle(Tab, Section, Title, Default, Callback, RegName)
-    local Toggle = Tab:Toggle({
-        Title = Title,
-        Default = Default,
-        Callback = function(Value)
-            PlaySound("116394299154002", 0.5)
-            Callback(Value)
-        end
-    })
-    if RegName then
-        D:Register(RegName, Toggle)
-    end
-    return Toggle
-end
 
 -- =============================================
 -- BOOST FPS FUNCTIONS
@@ -2180,7 +2246,7 @@ local function applyBoostFPS()
     end)
     for _, v in ipairs(workspace:GetDescendants()) do
         if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Fire") then
-            v.Enabled = false
+            pcall(function() v.Enabled = false end)
         end
     end
     local lighting = game:GetService("Lighting")
@@ -2203,7 +2269,7 @@ local function revertBoostFPS()
     end)
     for _, v in ipairs(workspace:GetDescendants()) do
         if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Fire") then
-            v.Enabled = true
+            pcall(function() v.Enabled = true end)
         end
     end
     local lighting = game:GetService("Lighting")
@@ -2248,6 +2314,7 @@ local function ApplyFireRate(gun)
     end
 end
 
+-- Loop บังคับค่า fire rate ตลอดเวลา (เฉพาะเมื่อเปิด)
 task.spawn(function()
     while task.wait(0.1) do
         if _G.InfiniteFireRate then
@@ -2271,46 +2338,45 @@ task.spawn(function()
 end)
 
 -- =============================================
+-- ✅ สร้าง Tabs (ใช้ SafeTab)
+-- =============================================
+local aN = SafeTab("COMBAT", "crosshair")
+local aS = SafeTab("WEAPON", "layers")
+local aW = SafeTab("ESP", "eye")
+local a1 = SafeTab("CHARACTER", "user")
+local BuyTab = SafeTab("BUY", "shopping-cart")
+local VehicleTab = SafeTab("VEHICLE", "car")
+local bf = SafeTab("PLAYER", "person-standing")
+local bk = SafeTab("MISC", "warehouse")
+
+-- =============================================
 -- COMBAT TAB
 -- =============================================
-local aN = B:Tab({Title = "COMBAT", Icon = "crosshair"})
+if UI_LOADED then
+    aN:Section({Title = "GUN"})
 
-aN:Section({Title = "GUN"})
+    local aO = CreateSoundToggle(aN, "GUN", "Silent Aim", false, function(aO)
+        F = aO
+        I = nil
+    end, "SilentAim")
 
-local aO = CreateSoundToggle(aN, "GUN", "Silent Aim", false, function(aO)
-    F = aO
-    I = nil
-end, "SilentAim")
+    local redLineToggle = CreateSoundToggle(aN, "GUN", "Red Line Lock", false, function(state)
+        redLineEnabled = state
+        I = nil
+    end, "SilentAimAttach")
 
-local redLineToggle = CreateSoundToggle(aN, "GUN", "Red Line Lock", false, function(state)
-    redLineEnabled = state
-    I = nil
-end, "SilentAimAttach")
+    local fovToggle = CreateSoundToggle(aN, "GUN", "FOV ", false, function(state)
+        fovEnabled = state
+        setFOVVisible(state)
+    end, "FOVToggle")
 
-local fovToggle = CreateSoundToggle(aN, "GUN", "FOV ", false, function(state)
-    fovEnabled = state
-    setFOVVisible(state)
-end, "FOVToggle")
-
-local fovSlider = aN:Slider({
-    Title = "FOV Size",
-    Step = 1,
-    Value = {Min = 20, Max = 500, Default = fovRadius},
-    Callback = function(value)
+    local fovSlider = SafeSlider(aN, "FOV Size", 1, 20, 500, fovRadius, function(value)
         fovRadius = tonumber(value) or 250
         updateFOVSize(fovRadius)
-    end
-})
-D:Register("FOVRadius", fovSlider)
+    end)
+    if fovSlider and D then pcall(function() D:Register("FOVRadius", fovSlider) end) end
 
-local aR = aN:Input({
-    Title = "Safe Friend",
-    Desc = "",
-    Value = "",
-    InputIcon = "shield-check",
-    Type = "Input",
-    Placeholder = "",
-    Callback = function(aR)
+    local aR = SafeInput(aN, "Safe Friend", "", function(aR)
         P = {}
         for aS in string.gmatch(aR, "%S+") do
             table.insert(P, aS)
@@ -2322,587 +2388,539 @@ local aR = aN:Input({
                 end
             end
         end
-    end
-})
-D:Register("FriendsList", aR)
+    end)
+    if aR and D then pcall(function() D:Register("FriendsList", aR) end) end
+end
 
 -- =============================================
 -- WEAPON TAB
 -- =============================================
-local aS = B:Tab({Title = "WEAPON", Icon = "layers"})
+if UI_LOADED then
+    -- ✅ Infinite Fire Rate (บนสุด)
+    aS:Section({Title = "🔥 AUTO FIRE RATE"})
 
-aS:Section({Title = "🔥 AUTO FIRE RATE"})
+    local infiniteFireRateToggle = CreateSoundToggle(aS, "🔥 INFINITE FIRE RATE", "Infinite Fire Rate", false, function(state)
+        _G.InfiniteFireRate = state
+        if state then
+            local char = r.Character
+            if char then
+                local tool = char:FindFirstChildOfClass('Tool')
+                if tool and IsGunForFireRate(tool) then
+                    ApplyFireRate(tool)
+                end
+            end
+            local bp = r:FindFirstChild('Backpack')
+            if bp then
+                for _, tool in pairs(bp:GetChildren()) do
+                    if IsGunForFireRate(tool) then 
+                        ApplyFireRate(tool) 
+                    end
+                end
+            end
+            if A then pcall(function() A:Notify({Title = "🔥 auto fire rate  ON", Duration = 2}) end) end
+        else
+            if A then pcall(function() A:Notify({Title = "❌ auto fire Rate OFF", Duration = 2}) end) end
+        end
+    end, "InfiniteFireRate")
 
-local infiniteFireRateToggle = CreateSoundToggle(aS, "🔥 INFINITE FIRE RATE", "Infinite Fire Rate", false, function(state)
-    _G.InfiniteFireRate = state
-    if state then
-        local char = r.Character
-        if char then
-            local tool = char:FindFirstChildOfClass('Tool')
-            if tool and IsGunForFireRate(tool) then
-                ApplyFireRate(tool)
+    -- =============================================
+    -- MODS Section
+    -- =============================================
+    aS:Section({Title = "MODS"})
+
+    local aT = c:WaitForChild("Items"):WaitForChild("gun")
+
+    ai().FireRateValue = 1000
+    ai().AccuracyValue = 5
+    ai().RecoilValue = 0
+    ai().Durability = 999999999
+    ai().Auto = true
+    ai().automatic = true
+    ai().AutoValue = true
+    ai().GunModsAutoApply = false
+
+    local function isGunTool(aU)
+        if not aU or not aU:IsA("Tool") then return false end
+        return aT:FindFirstChild(aU.Name) ~= nil or aU.Name:match("Gun") or aU:FindFirstChild("Handle")
+    end
+
+    local function applyGodGun(aU)
+        if not aU or not isGunTool(aU) then return end
+        
+        pcall(function()
+            aU:SetAttribute("fire_rate", ai().FireRateValue)
+            aU:SetAttribute("accuracy", ai().AccuracyValue)
+            aU:SetAttribute("Recoil", ai().RecoilValue)
+            aU:SetAttribute("Durability", ai().Durability)
+            aU:SetAttribute("automatic", ai().AutoValue)
+        end)
+    end
+
+    b.Heartbeat:Connect(function()
+        if not ai().GunModsAutoApply then return end
+        local aU = r.Character
+        if not aU then return end
+        for aV, aW in ipairs(aU:GetChildren()) do
+            if aW:IsA("Tool") and isGunTool(aW) then
+                pcall(applyGodGun, aW)
             end
         end
-        local bp = r:FindFirstChild('Backpack')
-        if bp then
-            for _, tool in pairs(bp:GetChildren()) do
-                if IsGunForFireRate(tool) then 
-                    ApplyFireRate(tool) 
+    end)
+
+    if r.Character then
+        r.Character.ChildAdded:Connect(function(aU)
+            if aU:IsA("Tool") and ai().GunModsAutoApply then
+                task.wait(0.2)
+                applyGodGun(aU)
+            end
+        end)
+    end
+
+    SafeSlider(aS, "Fire Rate", 10, 100, 1500, 1000, function(aU)
+        ai().FireRateValue = aU
+    end)
+
+    SafeSlider(aS, "Accuracy", 0.01, 0, 10, 5, function(aU)
+        ai().AccuracyValue = aU
+    end)
+
+    SafeSlider(aS, "Recoil", 0.1, 0, 10, 0, function(aU)
+        ai().RecoilValue = aU
+    end)
+
+    CreateSoundToggle(aS, "MODS", "Automatic", false, function(aU)
+        ai().automatic = aU
+        ai().GunModsAutoApply = aU
+        if aU and A then
+            pcall(function() A:Notify({Title = "✅ Auto Modify", Duration = 2}) end)
+        end
+    end)
+
+    aS:Section({Title = "COMBAT"})
+
+    local function modifyFists(aU, aV)
+        if aU then
+            local aW = aU:GetAttributes()
+            local aX = {}
+            for aY, aZ in pairs(aW) do
+                table.insert(aX, aY)
+            end
+            table.sort(aX)
+            if #aX >= 7 then
+                local aY = aX[6]
+                local aZ = aX[7]
+                if aV then
+                    if az[aY] == nil then az[aY] = aU:GetAttribute(aY) end
+                    if az[aZ] == nil then az[aZ] = aU:GetAttribute(aZ) end
+                    aU:SetAttribute(aY, 360)
+                    aU:SetAttribute(aZ, 20)
+                else
+                    if az[aY] then aU:SetAttribute(aY, az[aY]) end
+                    if az[aZ] then aU:SetAttribute(aZ, az[aZ]) end
                 end
             end
         end
-        if A then
-            pcall(function()
-                A:Notify({Title = "🔥 auto fire rate  ON", Duration = 2})
-            end)
+    end
+
+    local aU = {}
+    for aV, aW in ipairs(q:GetChildren()) do
+        table.insert(aU, aW.Name)
+    end
+
+    local function isMeleeTool(aV)
+        if not aV:IsA("Tool") then return false end
+        if aV.Name == "Fists" then return true end
+        for aW, aX in ipairs(aU) do
+            if aV.Name == aX then return true end
         end
-    else
-        if A then
-            pcall(function()
-                A:Notify({Title = "❌ auto fire Rate OFF", Duration = 2})
-            end)
-        end
+        return false
     end
-end, "InfiniteFireRate")
 
--- =============================================
--- MODS Section
--- =============================================
-aS:Section({Title = "MODS"})
-
-local aT = c:WaitForChild("Items"):WaitForChild("gun")
-
-ai().FireRateValue = 1000
-ai().AccuracyValue = 5
-ai().RecoilValue = 0
-ai().Durability = 999999999
-ai().Auto = true
-ai().automatic = true
-ai().AutoValue = true
-ai().GunModsAutoApply = false
-
-local function isGunTool(aU)
-    if not aU or not aU:IsA("Tool") then return false end
-    return aT:FindFirstChild(aU.Name) ~= nil or aU.Name:match("Gun") or aU:FindFirstChild("Handle")
-end
-
-local function applyGodGun(aU)
-    if not aU or not isGunTool(aU) then return end
-    
-    pcall(function()
-        aU:SetAttribute("fire_rate", ai().FireRateValue)
-        aU:SetAttribute("accuracy", ai().AccuracyValue)
-        aU:SetAttribute("Recoil", ai().RecoilValue)
-        aU:SetAttribute("Durability", ai().Durability)
-        aU:SetAttribute("automatic", ai().AutoValue)
-    end)
-end
-
-b.Heartbeat:Connect(function()
-    if not ai().GunModsAutoApply then return end
-    local aU = r.Character
-    if not aU then return end
-    for aV, aW in ipairs(aU:GetChildren()) do
-        if aW:IsA("Tool") and isGunTool(aW) then
-            pcall(applyGodGun, aW)
-        end
-    end
-end)
-
-r.Character.ChildAdded:Connect(function(aU)
-    if aU:IsA("Tool") and ai().GunModsAutoApply then
-        task.wait(0.2)
-        applyGodGun(aU)
-    end
-end)
-
-aS:Slider({
-    Title = "Fire Rate",
-    Step = 10,
-    Value = {Min = 100, Max = 1500, Default = 1000},
-    Callback = function(aU)
-        ai().FireRateValue = aU
-    end
-})
-
-aS:Slider({
-    Title = "Accuracy",
-    Step = 0.01,
-    Value = {Min = 0, Max = 10, Default = 5},
-    Callback = function(aU)
-        ai().AccuracyValue = aU
-    end
-})
-
-aS:Slider({
-    Title = "Recoil",
-    Step = 0.1,
-    Value = {Min = 0, Max = 10, Default = 0},
-    Callback = function(aU)
-        ai().RecoilValue = aU
-    end
-})
-
-CreateSoundToggle(aS, "MODS", "Automatic", false, function(aU)
-    ai().automatic = aU
-    ai().GunModsAutoApply = aU
-    if aU and A then
-        pcall(function()
-            A:Notify({Title = "✅ Auto Modify", Duration = 2})
-        end)
-    end
-end)
-
-aS:Section({Title = "COMBAT"})
-
-local function modifyFists(aU, aV)
-    if aU then
-        local aW = aU:GetAttributes()
+    local function checkAndModifyFists()
+        local aV = r.Character
+        local aW = r:FindFirstChild("Backpack")
+        if not aV or not aW then return end
+        
         local aX = {}
-        for aY, aZ in pairs(aW) do
-            table.insert(aX, aY)
+        for aY, aZ in ipairs(aV:GetChildren()) do
+            if isMeleeTool(aZ) then table.insert(aX, aZ) end
         end
-        table.sort(aX)
-        if #aX >= 7 then
-            local aY = aX[6]
-            local aZ = aX[7]
-            if aV then
-                if az[aY] == nil then az[aY] = aU:GetAttribute(aY) end
-                if az[aZ] == nil then az[aZ] = aU:GetAttribute(aZ) end
-                aU:SetAttribute(aY, 360)
-                aU:SetAttribute(aZ, 20)
-            else
-                if az[aY] then aU:SetAttribute(aY, az[aY]) end
-                if az[aZ] then aU:SetAttribute(aZ, az[aZ]) end
-            end
+        for aY, aZ in ipairs(aW:GetChildren()) do
+            if isMeleeTool(aZ) then table.insert(aX, aZ) end
+        end
+        for aY, aZ in ipairs(aX) do
+            modifyFists(aZ, ay)
         end
     end
+
+    b.Heartbeat:Connect(function()
+        if ay then checkAndModifyFists() end
+    end)
+
+    if D then pcall(function() D:Register("Fists Modifier", CreateSoundToggle(aS, "COMBAT", "Melee Aura", false, function(aV)
+        ay = aV
+        checkAndModifyFists()
+    end)) end) end
+
+    local aV = CreateSoundToggle(aS, "COMBAT", "Auto Attack", false, function(aV)
+        ab = aV
+    end, "AutoAttack_Enabled")
 end
-
-local aU = {}
-for aV, aW in ipairs(q:GetChildren()) do
-    table.insert(aU, aW.Name)
-end
-
-local function isMeleeTool(aV)
-    if not aV:IsA("Tool") then return false end
-    if aV.Name == "Fists" then return true end
-    for aW, aX in ipairs(aU) do
-        if aV.Name == aX then return true end
-    end
-    return false
-end
-
-local function checkAndModifyFists()
-    local aV = r.Character
-    local aW = r:FindFirstChild("Backpack")
-    if not aV or not aW then return end
-    
-    local aX = {}
-    for aY, aZ in ipairs(aV:GetChildren()) do
-        if isMeleeTool(aZ) then table.insert(aX, aZ) end
-    end
-    for aY, aZ in ipairs(aW:GetChildren()) do
-        if isMeleeTool(aZ) then table.insert(aX, aZ) end
-    end
-    for aY, aZ in ipairs(aX) do
-        modifyFists(aZ, ay)
-    end
-end
-
-b.Heartbeat:Connect(function()
-    if ay then checkAndModifyFists() end
-end)
-
-D:Register("Fists Modifier", CreateSoundToggle(aS, "COMBAT", "Melee Aura", false, function(aV)
-    ay = aV
-    checkAndModifyFists()
-end))
-
-local aV = CreateSoundToggle(aS, "COMBAT", "Auto Attack", false, function(aV)
-    ab = aV
-end, "AutoAttack_Enabled")
 
 -- =============================================
 -- ESP TAB
 -- =============================================
-local aW = B:Tab({Title = "ESP", Icon = "eye"})
+if UI_LOADED then
+    aW:Section({Title = "Visual"})
 
-aW:Section({Title = "Visual"})
-
-CreateSoundToggle(aW, "Visual", "Dropped Items ESP", false, function(state)
-    droppedItemESPSettings.Enabled = state
-    if not state then
-        for _, data in pairs(droppedItemESPSettings.Drawings) do
-            if data.Text then
-                data.Text.Visible = false
+    CreateSoundToggle(aW, "Visual", "Dropped Items ESP", false, function(state)
+        droppedItemESPSettings.Enabled = state
+        if not state then
+            for _, data in pairs(droppedItemESPSettings.Drawings) do
+                if data.Text then
+                    data.Text.Visible = false
+                end
             end
         end
-    end
-    if A then
-        pcall(function()
-            A:Notify({Title = state and "✅ Dropped Items ESP Enabled" or "❌ Dropped Items ESP Disabled", Duration = 2})
-        end)
-    end
-end, "DroppedItemsESP")
-
-local aX = CreateSoundToggle(aW, "Visual", "Inventory Viewer", false, function(aX)
-    aw = aX
-    if aX then
-        for aY, aZ in ipairs(a:GetPlayers()) do
-            if aZ ~= r and aZ.Character then
-                createBillboardForPlayer(aZ)
-            end
+        if A then
+            pcall(function() A:Notify({Title = state and "✅ Dropped Items ESP Enabled" or "❌ Dropped Items ESP Disabled", Duration = 2}) end)
         end
-        ax = b.Heartbeat:Connect(function()
+    end, "DroppedItemsESP")
+
+    local aX = CreateSoundToggle(aW, "Visual", "Inventory Viewer", false, function(aX)
+        aw = aX
+        if aX then
             for aY, aZ in ipairs(a:GetPlayers()) do
                 if aZ ~= r and aZ.Character then
                     createBillboardForPlayer(aZ)
                 end
             end
-        end)
-        if A then
-            pcall(function()
-                A:Notify({Title = "✅ ESP Items Enabled", Duration = 3})
+            ax = b.Heartbeat:Connect(function()
+                for aY, aZ in ipairs(a:GetPlayers()) do
+                    if aZ ~= r and aZ.Character then
+                        createBillboardForPlayer(aZ)
+                    end
+                end
             end)
+            if A then pcall(function() A:Notify({Title = "✅ ESP Items Enabled", Duration = 3}) end) end
+        else
+            if ax then ax:Disconnect() ax = nil end
+            for aY, aZ in pairs(av) do aZ:Destroy() end
+            av = {}
+            if A then pcall(function() A:Notify({Title = "❌ ESP Items Disabled", Duration = 3}) end) end
         end
-    else
-        if ax then ax:Disconnect() ax = nil end
-        for aY, aZ in pairs(av) do aZ:Destroy() end
-        av = {}
-        if A then
-            pcall(function()
-                A:Notify({Title = "❌ ESP Items Disabled", Duration = 3})
-            end)
-        end
-    end
-end, "ItemsESP")
+    end, "ItemsESP")
 
-local aY = CreateSoundToggle(aW, "Visual", "Name", false, function(aY)
-    M = aY
-    if M then
-        for aZ, ba in pairs(a:GetPlayers()) do
-            if ba ~= r then
-                createESPName(ba)
-            end
-        end
-    else
-        for aZ, ba in pairs(a:GetPlayers()) do
-            if ba ~= r then
-                if espCache[ba] and espCache[ba].nameDrawing then
-                    espCache[ba].nameDrawing:Remove()
-                    espCache[ba].nameDrawing = nil
+    local aY = CreateSoundToggle(aW, "Visual", "Name", false, function(aY)
+        M = aY
+        if M then
+            for aZ, ba in pairs(a:GetPlayers()) do
+                if ba ~= r then
+                    createESPName(ba)
                 end
-                if espCache[ba] and espCache[ba].nameConnection then
-                    espCache[ba].nameConnection:Disconnect()
-                    espCache[ba].nameConnection = nil
+            end
+        else
+            for aZ, ba in pairs(a:GetPlayers()) do
+                if ba ~= r then
+                    if espCache[ba] and espCache[ba].nameDrawing then
+                        espCache[ba].nameDrawing:Remove()
+                        espCache[ba].nameDrawing = nil
+                    end
+                    if espCache[ba] and espCache[ba].nameConnection then
+                        espCache[ba].nameConnection:Disconnect()
+                        espCache[ba].nameConnection = nil
+                    end
                 end
             end
         end
-    end
-end, "NameESP")
+    end, "NameESP")
 
-local aZ = CreateSoundToggle(aW, "Visual", "Health", false, function(aZ) O = aZ end, "HealthESP")
+    local aZ = CreateSoundToggle(aW, "Visual", "Health", false, function(aZ) O = aZ end, "HealthESP")
 
-local a_ = CreateSoundToggle(aW, "Visual", "Distance", false, function(a_)
-    N = a_
-    if N then
-        for aZ, ba in pairs(a:GetPlayers()) do
-            if ba ~= r then
-                createESPDistance(ba)
-            end
-        end
-    else
-        for aZ, ba in pairs(a:GetPlayers()) do
-            if ba ~= r then
-                if espCache[ba] and espCache[ba].distanceDrawing then
-                    espCache[ba].distanceDrawing:Remove()
-                    espCache[ba].distanceDrawing = nil
-                end
-                if espCache[ba] and espCache[ba].distanceConnection then
-                    espCache[ba].distanceConnection:Disconnect()
-                    espCache[ba].distanceConnection = nil
+    local a_ = CreateSoundToggle(aW, "Visual", "Distance", false, function(a_)
+        N = a_
+        if N then
+            for aZ, ba in pairs(a:GetPlayers()) do
+                if ba ~= r then
+                    createESPDistance(ba)
                 end
             end
+        else
+            for aZ, ba in pairs(a:GetPlayers()) do
+                if ba ~= r then
+                    if espCache[ba] and espCache[ba].distanceDrawing then
+                        espCache[ba].distanceDrawing:Remove()
+                        espCache[ba].distanceDrawing = nil
+                    end
+                    if espCache[ba] and espCache[ba].distanceConnection then
+                        espCache[ba].distanceConnection:Disconnect()
+                        espCache[ba].distanceConnection = nil
+                    end
+                end
+            end
         end
-    end
-end, "DistanceESP")
+    end, "DistanceESP")
 
-local a0 = CreateSoundToggle(aW, "Visual", "Highlight", false, function(a0)
-    highlightEnabled = a0
-    for a1, a2 in pairs(game.Players:GetPlayers()) do
-        updateHighlight(a2)
-    end
-end, "HighlightESP")
+    local a0 = CreateSoundToggle(aW, "Visual", "Highlight", false, function(a0)
+        highlightEnabled = a0
+        for a1, a2 in pairs(game.Players:GetPlayers()) do
+            updateHighlight(a2)
+        end
+    end, "HighlightESP")
 
-function updateHighlight(a1)
-    if a1 == game.Players.LocalPlayer then return end
-    if not a1.Character then return end
-    local a2 = a1.Character:FindFirstChild("HumanoidRootPart")
-    if not a2 then return end
-    
-    if aB[a1] then aB[a1]:Destroy() aB[a1] = nil end
-    
-    if highlightEnabled then
-        local a3 = Instance.new("Highlight")
-        a3.Name = "PlayerHighlight"
-        a3.Adornee = a1.Character
-        a3.FillColor = Color3.fromRGB(0, 170, 255)
-        a3.OutlineColor = Color3.fromRGB(0, 170, 255)
-        a3.Parent = workspace
-        aB[a1] = a3
+    function updateHighlight(a1)
+        if a1 == game.Players.LocalPlayer then return end
+        if not a1.Character then return end
+        local a2 = a1.Character:FindFirstChild("HumanoidRootPart")
+        if not a2 then return end
+        
+        if aB[a1] then aB[a1]:Destroy() aB[a1] = nil end
+        
+        if highlightEnabled then
+            local a3 = Instance.new("Highlight")
+            a3.Name = "PlayerHighlight"
+            a3.Adornee = a1.Character
+            a3.FillColor = Color3.fromRGB(0, 170, 255)
+            a3.OutlineColor = Color3.fromRGB(0, 170, 255)
+            a3.Parent = workspace
+            aB[a1] = a3
+        end
     end
 end
 
 -- =============================================
 -- CHARACTER TAB
 -- =============================================
-local a1 = B:Tab({Title = "CHARACTER", Icon = "user"})
+if UI_LOADED then
+    a1:Section({Title = "CHARACTER"})
 
-a1:Section({Title = "CHARACTER"})
+    local a2 = CreateSoundToggle(a1, "CHARACTER", "Walk Speed", false, function(a2) Q = a2 end, "WalkSpeed")
 
-local a2 = CreateSoundToggle(a1, "CHARACTER", "Walk Speed", false, function(a2) Q = a2 end, "WalkSpeed")
+    local a3 = SafeSlider(a1, "Speed Multiplier", 0.5, 1, 5, 2, function(a3) R = a3 * 0.05 end)
+    if a3 and D then pcall(function() D:Register("SpeedMultiplier", a3) end) end
 
-local a3 = a1:Slider({
-    Title = "Speed Multiplier",
-    Step = 0.5,
-    Value = {Min = 1, Max = 5, Default = 2},
-    Callback = function(a3) R = a3 * 0.05 end
-})
-D:Register("SpeedMultiplier", a3)
+    local jumpHighToggle = CreateSoundToggle(a1, "CHARACTER", "Jump High", false, function(value)
+        jumpHighEnabled = value
+    end, "JumpHigh")
 
-local jumpHighToggle = CreateSoundToggle(a1, "CHARACTER", "Jump High", false, function(value)
-    jumpHighEnabled = value
-end, "JumpHigh")
-
-local a5 = {}
-function a5.send(...)
-    local a6 = {...}
-    if aC then
-        aC.event = aC.event + 1
-        pcall(function()
-            i.Send:FireServer(aC.event, unpack(a6))
-        end)
+    local a5 = {}
+    function a5.send(...)
+        local a6 = {...}
+        if aC and aC.event then
+            aC.event = aC.event + 1
+            pcall(function()
+                i.Send:FireServer(aC.event, unpack(a6))
+            end)
+        end
     end
-end
 
-local a6 = CreateSoundToggle(a1, "CHARACTER", "Infinite Stamina", false, function(a6)
-    as = a6
-    if as then
-        local a7, a8 = pcall(function()
-            return require(c.Modules.Game.Sprint)
-        end)
-        if a7 and a8 then
-            local a9 = a8.consume_stamina
-            local ba = getupvalue(a9, 2).sprint_bar
-            if ba then
-                local bb = ba.update
-                ba.update = function(...)
-                    return bb(function() return 1 end)
-                end
-                ai().OriginalSprintUpdate = bb
-                ai().AutoSprintLoop = task.spawn(function()
-                    while as do
-                        pcall(function()
-                            a5.send("set_sprinting_1", true)
-                            task.wait(0.5)
-                            a5.send("set_sprinting_1", false)
-                        end)
-                        task.wait(0.1)
+    local a6 = CreateSoundToggle(a1, "CHARACTER", "Infinite Stamina", false, function(a6)
+        as = a6
+        if as then
+            local a7, a8 = pcall(function()
+                return require(c.Modules.Game.Sprint)
+            end)
+            if a7 and a8 then
+                local a9 = a8.consume_stamina
+                local ba = getupvalue(a9, 2).sprint_bar
+                if ba then
+                    local bb = ba.update
+                    ba.update = function(...)
+                        return bb(function() return 1 end)
                     end
-                end)
-                if A then
-                    pcall(function()
-                        A:Notify({Title = "✅ INF STAMINA", Duration = 3})
+                    ai().OriginalSprintUpdate = bb
+                    ai().AutoSprintLoop = task.spawn(function()
+                        while as do
+                            pcall(function()
+                                a5.send("set_sprinting_1", true)
+                                task.wait(0.5)
+                                a5.send("set_sprinting_1", false)
+                            end)
+                            task.wait(0.1)
+                        end
                     end)
+                    if A then pcall(function() A:Notify({Title = "✅ INF STAMINA", Duration = 3}) end) end
                 end
             end
+        else
+            if ai().AutoSprintLoop then
+                task.cancel(ai().AutoSprintLoop)
+                ai().AutoSprintLoop = nil
+            end
+            pcall(function() a5.send("set_sprinting_1", false) end)
         end
-    else
-        if ai().AutoSprintLoop then
-            task.cancel(ai().AutoSprintLoop)
-            ai().AutoSprintLoop = nil
-        end
-        pcall(function() a5.send("set_sprinting_1", false) end)
-    end
-end, "AutoSprint")
+    end, "AutoSprint")
 
-local a7 = CreateSoundToggle(a1, "CHARACTER", "Anti Lock", false, function(a7)
-    ai().Sky = a7
-    if a7 then ai().SkyAmount = 1000 end
-end, "AntiLock")
+    local a7 = CreateSoundToggle(a1, "CHARACTER", "Anti Lock", false, function(a7)
+        ai().Sky = a7
+        if a7 then ai().SkyAmount = 1000 end
+    end, "AntiLock")
 
-local a8 = CreateSoundToggle(a1, "CHARACTER", "Anti Kill", false, function(a8)
-    enabled = a8
-end, "AntiKill")
+    local a8 = CreateSoundToggle(a1, "CHARACTER", "Anti Kill", false, function(a8)
+        enabled = a8
+    end, "AntiKill")
 
-pcall(function()
-    a1:Divider()
-end)
-
-pcall(function()
-    a1:Section({Title = "Att"})
-end)
-
-local a9 = CreateSoundToggle(a1, "Att", "Pickup items", false, function(a9) ak = a9 end, "PickupItems")
-
-local ba = CreateSoundToggle(a1, "Att", "Anti Ragdoll", false, function(ba)
-    local bb = ba
-    if not bb then return end
     pcall(function()
-        local function findCounter()
-            for bf, bg in ipairs(getgc and getgc(true) or {}) do
-                if typeof(bg) == "table" and rawget(bg, "event") and rawget(bg, "func") then
-                    return bg
-                end
-            end
-        end
-        local bf = findCounter()
-        if not bf then return end
-        local function sendRemoteAction(bg)
-            bf.event = (bf.event or 0) + 1
-            local bh = c:WaitForChild("Remotes"):WaitForChild("Send")
-            bh:FireServer(bf.event, bg)
-        end
-        task.spawn(function()
-            while bb do
-                sendRemoteAction("end_ragdoll_early")
-                task.wait(0.3)
-                if not bb then break end
-                sendRemoteAction("clear_ragdoll")
-                task.wait(0.3)
-            end
-        end)
+        a1:Divider()
     end)
-end, "AntiRagdoll")
 
-local bc = CreateSoundToggle(a1, "Att", "Auto Respawn", false, function(bc)
-    local bd = bc
-    if not bd then return end
     pcall(function()
-        local function findCounter()
-            for bh, bi in ipairs(getgc and getgc(true) or {}) do
-                if typeof(bi) == "table" and rawget(bi, "event") and rawget(bi, "func") then
-                    return bi
-                end
-            end
-        end
-        local bh = findCounter()
-        if not bh then return end
-        local function sendRemoteAction(bi)
-            bh.event = (bh.event or 0) + 1
-            local bj = c:WaitForChild("Remotes"):WaitForChild("Send")
-            bj:FireServer(bh.event, bi)
-        end
-        task.spawn(function()
-            while bd do
-                local bi = r.Character
-                local bj = bi and bi:FindFirstChildOfClass("Humanoid")
-                if bj and bj.Health <= 0 then
-                    task.wait(6)
-                    if bd then
-                        sendRemoteAction("death_screen_request_respawn")
+        a1:Section({Title = "Att"})
+    end)
+
+    local a9 = CreateSoundToggle(a1, "Att", "Pickup items", false, function(a9) ak = a9 end, "PickupItems")
+
+    local ba = CreateSoundToggle(a1, "Att", "Anti Ragdoll", false, function(ba)
+        local bb = ba
+        if not bb then return end
+        pcall(function()
+            local function findCounter()
+                for bf, bg in ipairs(getgc and getgc(true) or {}) do
+                    if typeof(bg) == "table" and rawget(bg, "event") and rawget(bg, "func") then
+                        return bg
                     end
                 end
-                task.wait(0.5)
             end
+            local bf = findCounter()
+            if not bf then return end
+            local function sendRemoteAction(bg)
+                bf.event = (bf.event or 0) + 1
+                local bh = c:WaitForChild("Remotes"):WaitForChild("Send")
+                bh:FireServer(bf.event, bg)
+            end
+            task.spawn(function()
+                while bb do
+                    sendRemoteAction("end_ragdoll_early")
+                    task.wait(0.3)
+                    if not bb then break end
+                    sendRemoteAction("clear_ragdoll")
+                    task.wait(0.3)
+                end
+            end)
         end)
-    end)
-end, "AutoRespawn")
+    end, "AntiRagdoll")
 
-a1:Divider()
+    local bc = CreateSoundToggle(a1, "Att", "Auto Respawn", false, function(bc)
+        local bd = bc
+        if not bd then return end
+        pcall(function()
+            local function findCounter()
+                for bh, bi in ipairs(getgc and getgc(true) or {}) do
+                    if typeof(bi) == "table" and rawget(bi, "event") and rawget(bi, "func") then
+                        return bi
+                    end
+                end
+            end
+            local bh = findCounter()
+            if not bh then return end
+            local function sendRemoteAction(bi)
+                bh.event = (bh.event or 0) + 1
+                local bj = c:WaitForChild("Remotes"):WaitForChild("Send")
+                bj:FireServer(bh.event, bi)
+            end
+            task.spawn(function()
+                while bd do
+                    local bi = r.Character
+                    local bj = bi and bi:FindFirstChildOfClass("Humanoid")
+                    if bj and bj.Health <= 0 then
+                        task.wait(6)
+                        if bd then
+                            sendRemoteAction("death_screen_request_respawn")
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end)
+    end, "AutoRespawn")
 
-a1:Section({Title = "PC HOLD (Z)"})
+    a1:Divider()
 
-local bd = CreateSoundToggle(a1, "PC HOLD (Z)", "Snap Under Map", false, function(bd)
-    W = bd
-    if W then
-        ac = ac + 1
-        if ac < 2 then return end
-        Z = u and u.Position.Y or nil
-        V = true
-        performTeleport()
-    else
-        V = false
-        X = nil
-        Z = nil
-    end
-end, "SnapUnderMap")
+    a1:Section({Title = "PC HOLD (Z)"})
 
-local be = a1:Slider({
-    Title = "Snap",
-    Step = 1,
-    Value = {Min = 1, Max = 300, Default = 10},
-    Callback = function(be)
+    local bd = CreateSoundToggle(a1, "PC HOLD (Z)", "Snap Under Map", false, function(bd)
+        W = bd
+        if W then
+            ac = ac + 1
+            if ac < 2 then return end
+            Z = u and u.Position.Y or nil
+            V = true
+            performTeleport()
+        else
+            V = false
+            X = nil
+            Z = nil
+        end
+    end, "SnapUnderMap")
+
+    local be = SafeSlider(a1, "Snap", 1, 1, 300, 10, function(be)
         Y = be
         if V and u and Z then
             local bf = Vector3.new(u.Position.X, Z - Y, u.Position.Z)
             u.CFrame = CFrame.new(bf)
             X = bf.Y
         end
-    end
-})
-D:Register("SnapHeight", be)
+    end)
+    if be and D then pcall(function() D:Register("SnapHeight", be) end) end
 
-a1:Divider()
-a1:Section({Title = "Anti Aim V2"})
+    a1:Divider()
+    a1:Section({Title = "Anti Aim V2"})
 
-local antiAimV2Toggle = CreateSoundToggle(a1, "Anti Aim V2", "Anti Aim V2", false, function(state)
-    antiAimV2Enabled = state
-    if state then
-        CreateNotification("✅ Anti Aim V2", "เปิด Anti Aim V2 แล้ว!", 3)
-    else
-        CreateNotification("❌ Anti Aim V2", "ปิด Anti Aim V2", 3)
-        SavedHistoryCFrame = nil
-    end
-end, "AntiAimV2")
+    local antiAimV2Toggle = CreateSoundToggle(a1, "Anti Aim V2", "Anti Aim V2", false, function(state)
+        antiAimV2Enabled = state
+        if state then
+            CreateNotification("✅ Anti Aim V2", "เปิด Anti Aim V2 แล้ว!", 3)
+        else
+            CreateNotification("❌ Anti Aim V2", "ปิด Anti Aim V2", 3)
+            SavedHistoryCFrame = nil
+        end
+    end, "AntiAimV2")
+end
 
 -- =============================================
 -- BUY TAB
 -- =============================================
-local BuyTab = B:Tab({Title = "BUY", Icon = "shopping-cart"})
+if UI_LOADED then
+    BuyTab:Section({Title = "Animation"})
 
-BuyTab:Section({Title = "Animation"})
+    local CrateController
+    pcall(function()
+        CrateController = require(game:GetService("ReplicatedStorage").Modules.Game.CrateSystem.Crate)
+    end)
+    
+    local EnabledSkip = false
 
-local CrateController
-pcall(function()
-    CrateController = require(game:GetService("ReplicatedStorage").Modules.Game.CrateSystem.Crate)
-end)
-
-local EnabledSkip = false
-
-BuyTab:Toggle({
-    Title = "Skip animation",
-    Desc = "ข้าม animation ตอนเปิดกล่อง",
-    Value = false,
-    Callback = function(v)
-        PlaySound("116394299154002", 0.5)
-        EnabledSkip = v
-        if EnabledSkip and CrateController then
-            task.spawn(function()
-                while EnabledSkip do
-                    task.wait()
-                    if CrateController.class and CrateController.class.objects then
-                        for _, crate in pairs(CrateController.class.objects) do
-                            pcall(function()
-                                if crate.states and crate.states.open and crate.states.open.set then
-                                    crate.states.open.set(true)
-                                end
-                                if CrateController.skipping and CrateController.skipping.set then
-                                    CrateController.skipping.set(true)
-                                end
-                            end)
+    BuyTab:Toggle({
+        Title = "Skip animation",
+        Desc = "ข้าม animation ตอนเปิดกล่อง",
+        Value = false,
+        Callback = function(v)
+            PlaySound("116394299154002", 0.5)
+            EnabledSkip = v
+            if EnabledSkip and CrateController then
+                task.spawn(function()
+                    while EnabledSkip do
+                        task.wait()
+                        if CrateController.class and CrateController.class.objects then
+                            for _, crate in pairs(CrateController.class.objects) do
+                                pcall(function()
+                                    if crate.states and crate.states.open and crate.states.open.set then
+                                        crate.states.open.set(true)
+                                    end
+                                    if CrateController.skipping and CrateController.skipping.set then
+                                        CrateController.skipping.set(true)
+                                    end
+                                end)
+                            end
+                        end
+                        if CrateController.spinning and CrateController.skip_spin then
+                            if not CrateController.spinning.get() then
+                                pcall(function() CrateController.skip_spin() end)
+                            end
                         end
                     end
-                    if CrateController.spinning and CrateController.skip_spin then
-                        if not CrateController.spinning.get() then
-                            pcall(function() CrateController.skip_spin() end)
-                        end
-                    end
-                end
-            end)
-        else
-            if CrateController then
+                end)
+            elseif not EnabledSkip and CrateController then
                 pcall(function()
                     if CrateController.skipping and CrateController.skipping.set then
                         CrateController.skipping.set(false)
@@ -2910,372 +2928,361 @@ BuyTab:Toggle({
                 end)
             end
         end
-    end
-})
+    })
 
-BuyTab:Divider()
-BuyTab:Section({Title = "Money"})
+    BuyTab:Divider()
+    BuyTab:Section({Title = "Money"})
 
-BuyTab:Button({
-    Title = "Bank",
-    Desc = "Click to view bank money",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        pcall(function()
-            local Data = require(c.Modules.Core.Data)
-            local bankAmount = Data.money.bank
-            CreateNotification("Bank", "$" .. tostring(bankAmount), 3)
-        end)
-    end
-})
+    BuyTab:Button({
+        Title = "Bank",
+        Desc = "Click to view bank money",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            pcall(function()
+                local Data = require(c.Modules.Core.Data)
+                local bankAmount = Data.money.bank
+                CreateNotification("Bank", "$" .. tostring(bankAmount), 3)
+            end)
+        end
+    })
 
-BuyTab:Button({
-    Title = "Cash in Hand",
-    Desc = "Click to view cash in hand",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        pcall(function()
-            local Data = require(c.Modules.Core.Data)
-            local handAmount = Data.money.hand
-            CreateNotification("Cash in Hand", "$" .. tostring(handAmount), 3)
-        end)
-    end
-})
+    BuyTab:Button({
+        Title = "Cash in Hand",
+        Desc = "Click to view cash in hand",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            pcall(function()
+                local Data = require(c.Modules.Core.Data)
+                local handAmount = Data.money.hand
+                CreateNotification("Cash in Hand", "$" .. tostring(handAmount), 3)
+            end)
+        end
+    })
 
-BuyTab:Button({
-    Title = "Total Money",
-    Desc = "Click to view total money",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        pcall(function()
-            local Data = require(c.Modules.Core.Data)
-            local bankAmount = Data.money.bank
-            local handAmount = Data.money.hand
-            local total = bankAmount + handAmount
-            CreateNotification("Total Money", "$" .. tostring(total), 3)
-        end)
-    end
-})
+    BuyTab:Button({
+        Title = "Total Money",
+        Desc = "Click to view total money",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            pcall(function()
+                local Data = require(c.Modules.Core.Data)
+                local bankAmount = Data.money.bank
+                local handAmount = Data.money.hand
+                local total = bankAmount + handAmount
+                CreateNotification("Total Money", "$" .. tostring(total), 3)
+            end)
+        end
+    })
+end
 
 -- =============================================
 -- VEHICLE TAB
 -- =============================================
-local VehicleTab = B:Tab({Title = "VEHICLE", Icon = "car"})
+if UI_LOADED then
+    VehicleTab:Section({Title = "Vehicle"})
 
-VehicleTab:Section({Title = "Vehicle"})
-
-VehicleTab:Button({
-    Title = "Pull Car Owner",
-    Desc = "ดึงรถของคุณมาใกล้ ๆ",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        local Players = game:GetService("Players")
-        local Client = Players.LocalPlayer
-        local Character = Client.Character or Client.CharacterAdded:Wait()
-        local RootPart = Character:WaitForChild("HumanoidRootPart")
-        local Vehicles = workspace:WaitForChild("Vehicles")
-        
-        local found = false
-        for _, vehicle in pairs(Vehicles:GetChildren()) do
-            if vehicle:IsA("Model") then
-                local ownerId = vehicle:GetAttribute("OwnerUserId")
-                if ownerId and ownerId == Client.UserId then
-                    found = true
-                    local offset = CFrame.new(math.random(-5, 5), 3, math.random(-15, -5))
-                    if vehicle.PrimaryPart then
-                        vehicle:SetPrimaryPartCFrame(RootPart.CFrame * offset)
-                    else
-                        local part = vehicle:FindFirstChildWhichIsA("BasePart")
-                        if part then
-                            part.CFrame = RootPart.CFrame * offset
+    VehicleTab:Button({
+        Title = "Pull Car Owner",
+        Desc = "ดึงรถของคุณมาใกล้ ๆ",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            local Players = game:GetService("Players")
+            local Client = Players.LocalPlayer
+            local Character = Client.Character or Client.CharacterAdded:Wait()
+            local RootPart = Character:WaitForChild("HumanoidRootPart")
+            local Vehicles = workspace:WaitForChild("Vehicles")
+            
+            local found = false
+            for _, vehicle in pairs(Vehicles:GetChildren()) do
+                if vehicle:IsA("Model") then
+                    local ownerId = vehicle:GetAttribute("OwnerUserId")
+                    if ownerId and ownerId == Client.UserId then
+                        found = true
+                        local offset = CFrame.new(math.random(-5, 5), 3, math.random(-15, -5))
+                        if vehicle.PrimaryPart then
+                            vehicle:SetPrimaryPartCFrame(RootPart.CFrame * offset)
+                        else
+                            local part = vehicle:FindFirstChildWhichIsA("BasePart")
+                            if part then
+                                part.CFrame = RootPart.CFrame * offset
+                            end
                         end
+                        CreateNotification("Vehicle", "ดึงรถสำเร็จ!", 3)
+                        break
                     end
-                    CreateNotification("Vehicle", "ดึงรถสำเร็จ!", 3)
-                    break
                 end
-            end        end
-        
-        if not found then
-            CreateNotification("ไม่พบรถ", "ไม่พบรถของคุณในพื้นที่", 3)
+            end
+            
+            if not found then
+                CreateNotification("ไม่พบรถ", "ไม่พบรถของคุณในพื้นที่", 3)
+            end
         end
-    end
-})
+    })
+end
 
 -- =============================================
 -- PLAYER TAB
 -- =============================================
-local bf = B:Tab({Title = "PLAYER", Icon = "person-standing"})
+if UI_LOADED then
+    bf:Section({Title = "PLAYER"})
 
-bf:Section({Title = "PLAYER"})
+    local bg = Instance.new("Folder", g)
+    local bh = Instance.new("Part", bg)
+    Instance.new("Attachment", bh)
+    bh.Anchored = true
+    bh.CanCollide = false
+    bh.Transparency = 1
 
-local bg = Instance.new("Folder", g)
-local bh = Instance.new("Part", bg)
-Instance.new("Attachment", bh)
-bh.Anchored = true
-bh.CanCollide = false
-bh.Transparency = 1
-
-local bi = CreateSoundToggle(bf, "PLAYER", "Auto Finnish", false, function(bi)
-    ad = bi
-    if bi then
-        applyToAll()
-    end
-end, "AutoFinnish")
+    local bi = CreateSoundToggle(bf, "PLAYER", "Auto Finnish", false, function(bi)
+        ad = bi
+        if bi then
+            applyToAll()
+        end
+    end, "AutoFinnish")
+end
 
 -- =============================================
 -- MISC TAB
 -- =============================================
-local bk = B:Tab({Title = "MISC", Icon = "warehouse"})
+if UI_LOADED then
+    local bl = game.PlaceId
+    local ServerJobId = game.JobId
 
-local bl = game.PlaceId
-local ServerJobId = game.JobId
+    bk:Section({Title = "Server Info"})
 
-bk:Section({Title = "Server Info"})
+    bk:Button({
+        Title = "Copy Server ID",
+        Desc = "Copy JobId to clipboard",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            if setclipboard then
+                setclipboard(ServerJobId)
+                if A then pcall(function() A:Notify({Title = "✅ Copied!", Description = "Server ID: " .. ServerJobId, Duration = 3}) end) end
+            end
+        end
+    })
 
-bk:Button({
-    Title = "Copy Server ID",
-    Desc = "Copy JobId to clipboard",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        if setclipboard then
-            setclipboard(ServerJobId)
-            if A then
+    bk:Button({
+        Title = "Copy Place ID",
+        Desc = "Copy PlaceId to clipboard",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            if setclipboard then
+                setclipboard(tostring(bl))
+                if A then pcall(function() A:Notify({Title = "✅ Copied!", Description = "Place ID: " .. bl, Duration = 3}) end) end
+            end
+        end
+    })
+
+    bk:Divider()
+
+    bk:Input({
+        Title = "Server Hop by ID",
+        Value = "",
+        InputIcon = "send",
+        Type = "Input",
+        Placeholder = "id sever here!",
+        Callback = function(bm)
+            if not bm or bm == "" then return end
+            local bn = {}
+            for bo in string.gmatch(bm, "[%w%-]+") do
+                table.insert(bn, bo)
+            end
+            for bo, bp in ipairs(bn) do
+                print("กำลังวาร์ปไปเซิร์ฟ:", bo)
+                task.wait(0.5)
                 pcall(function()
-                    A:Notify({Title = "✅ Copied!", Description = "Server ID: " .. ServerJobId, Duration = 3})
+                    game:GetService("TeleportService"):TeleportToPlaceInstance(bl, bp, r)
                 end)
             end
         end
-    end
-})
+    })
 
-bk:Button({
-    Title = "Copy Place ID",
-    Desc = "Copy PlaceId to clipboard",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        if setclipboard then
-            setclipboard(tostring(bl))
-            if A then
-                pcall(function()
-                    A:Notify({Title = "✅ Copied!", Description = "Place ID: " .. bl, Duration = 3})
-                end)
-            end
+    bk:Button({
+        Title = "Server Rejoin",
+        Desc = "Come back old sever",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            game:GetService("TeleportService"):TeleportToPlaceInstance(
+                game.PlaceId,
+                game.JobId,
+                game.Players.LocalPlayer
+            )
         end
-    end
-})
+    })
 
-bk:Divider()
+    bk:Divider()
 
-bk:Input({
-    Title = "Server Hop by ID",
-    Value = "",
-    InputIcon = "send",
-    Type = "Input",
-    Placeholder = "id sever here!",
-    Callback = function(bm)
-        if not bm or bm == "" then return end
-        local bn = {}
-        for bo in string.gmatch(bm, "[%w%-]+") do
-            table.insert(bn, bo)
-        end
-        for bo, bp in ipairs(bn) do
-            print("กำลังวาร์ปไปเซิร์ฟ:", bo)
-            task.wait(0.5)
-            pcall(function()
-                game:GetService("TeleportService"):TeleportToPlaceInstance(bl, bp, r)
+    -- =============================================
+    -- 🎲 SERVER HOP
+    -- =============================================
+    bk:Section({Title = "Server Hop"})
+
+    bk:Button({
+        Title = "⚡ Server Hop (คนเยอะสุด)",
+        Desc = "วาร์ปไปเซิร์ฟที่มีคนเยอะที่สุด",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            
+            local HttpService = game:GetService("HttpService")
+            local TeleportService = game:GetService("TeleportService")
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+            local PlaceId = game.PlaceId
+            
+            local success, servers = pcall(function()
+                return HttpService:JSONDecode(
+                    game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Desc&limit=100")
+                )
             end)
-        end
-    end
-})
-
-bk:Button({
-    Title = "Server Rejoin",
-    Desc = "Come back old sever",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        game:GetService("TeleportService"):TeleportToPlaceInstance(
-            game.PlaceId,
-            game.JobId,
-            game.Players.LocalPlayer
-        )
-    end
-})
-
-bk:Divider()
-
--- =============================================
--- 🎲 SERVER HOP
--- =============================================
-bk:Section({Title = "Server Hop"})
-
-bk:Button({
-    Title = "⚡ Server Hop (คนเยอะสุด)",
-    Desc = "วาร์ปไปเซิร์ฟที่มีคนเยอะที่สุด",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        
-        local HttpService = game:GetService("HttpService")
-        local TeleportService = game:GetService("TeleportService")
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
-        local PlaceId = game.PlaceId
-        
-        local success, servers = pcall(function()
-            return HttpService:JSONDecode(
-                game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Desc&limit=100")
-            )
-        end)
-        
-        if not success or not servers or not servers.data then
-            CreateNotification("❌ Error", "ไม่สามารถดึงข้อมูลเซิร์ฟเวอร์ได้", 3)
-            return
-        end
-        
-        local availableServers = {}
-        for _, server in ipairs(servers.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                table.insert(availableServers, server)
+            
+            if not success or not servers or not servers.data then
+                CreateNotification("❌ Error", "ไม่สามารถดึงข้อมูลเซิร์ฟเวอร์ได้", 3)
+                return
             end
-        end
-        
-        if #availableServers == 0 then
-            CreateNotification("❌ Error", "ไม่มีเซิร์ฟเวอร์ว่าง", 3)
-            return
-        end
-        
-        table.sort(availableServers, function(a, b)
-            return a.playing > b.playing
-        end)
-        
-        local targetServer = availableServers[1]
-        
-        CreateNotification("⚡ Server Hop", "กำลังโหลดไปเซิร์ฟที่มี " .. targetServer.playing .. " คน...", 3)
-        
-        TeleportService:TeleportToPlaceInstance(PlaceId, targetServer.id, LocalPlayer)
-    end
-})
-
-bk:Button({
-    Title = "🎲 Server Hop (สุ่ม)",
-    Desc = "วาร์ปไปเซิร์ฟสุ่มที่มีคนว่าง",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        
-        local HttpService = game:GetService("HttpService")
-        local TeleportService = game:GetService("TeleportService")
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
-        local PlaceId = game.PlaceId
-        
-        local success, servers = pcall(function()
-            return HttpService:JSONDecode(
-                game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Desc&limit=100")
-            )
-        end)
-        
-        if not success or not servers or not servers.data then
-            CreateNotification("❌ Error", "ไม่สามารถดึงข้อมูลเซิร์ฟเวอร์ได้", 3)
-            return
-        end
-        
-        local availableServers = {}
-        for _, server in ipairs(servers.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                table.insert(availableServers, server)
-            end
-        end
-        
-        if #availableServers == 0 then
-            CreateNotification("❌ Error", "ไม่มีเซิร์ฟเวอร์ว่าง", 3)
-            return
-        end
-        
-        local targetServer = availableServers[math.random(1, #availableServers)]
-        
-        CreateNotification("🎲 Server Hop", "กำลังโหลดไปเซิร์ฟสุ่ม...", 3)
-        
-        TeleportService:TeleportToPlaceInstance(PlaceId, targetServer.id, LocalPlayer)
-    end
-})
-
-bk:Button({
-    Title = "🟢 Server Hop (ปิงน้อย)",
-    Desc = "วาร์ปไปเซิร์ฟที่ปิงน้อยที่สุด",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        
-        local HttpService = game:GetService("HttpService")
-        local TeleportService = game:GetService("TeleportService")
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
-        local PlaceId = game.PlaceId
-        
-        local regionPriority = {
-            "Asia",
-            "Australia",
-            "Europe",
-            "North America",
-            "South America",
-            "Africa"
-        }
-        
-        local success, servers = pcall(function()
-            return HttpService:JSONDecode(
-                game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Desc&limit=100")
-            )
-        end)
-        
-        if not success or not servers or not servers.data then
-            CreateNotification("❌ Error", "ไม่สามารถดึงข้อมูลเซิร์ฟเวอร์ได้", 3)
-            return
-        end
-        
-        local availableServers = {}
-        for _, server in ipairs(servers.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                table.insert(availableServers, server)
-            end
-        end
-        
-        if #availableServers == 0 then
-            CreateNotification("❌ Error", "ไม่มีเซิร์ฟเวอร์ว่าง", 3)
-            return
-        end
-        
-        local function getRegionPriority(region)
-            for i, r in ipairs(regionPriority) do
-                if region and string.find(region, r) then
-                    return i
+            
+            local availableServers = {}
+            for _, server in ipairs(servers.data) do
+                if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    table.insert(availableServers, server)
                 end
             end
-            return 999
-        end
-        
-        table.sort(availableServers, function(a, b)
-            local aPriority = getRegionPriority(a.region)
-            local bPriority = getRegionPriority(b.region)
-            if aPriority == bPriority then
-                return a.playing > b.playing
+            
+            if #availableServers == 0 then
+                CreateNotification("❌ Error", "ไม่มีเซิร์ฟเวอร์ว่าง", 3)
+                return
             end
-            return aPriority < bPriority
-        end)
-        
-        local targetServer = availableServers[1]
-        local regionName = targetServer.region or "Unknown"
-        
-        CreateNotification("🟢 Server Hop", "กำลังโหลดไปเซิร์ฟ " .. regionName .. " (" .. targetServer.playing .. " คน)...", 3)
-        
-        TeleportService:TeleportToPlaceInstance(PlaceId, targetServer.id, LocalPlayer)
-    end
-})
+            
+            table.sort(availableServers, function(a, b)
+                return a.playing > b.playing
+            end)
+            
+            local targetServer = availableServers[1]
+            
+            CreateNotification("⚡ Server Hop", "กำลังโหลดไปเซิร์ฟที่มี " .. targetServer.playing .. " คน...", 3)
+            
+            TeleportService:TeleportToPlaceInstance(PlaceId, targetServer.id, LocalPlayer)
+        end
+    })
 
-bk:Divider()
-bk:Section({Title = "Quests"})
+    bk:Button({
+        Title = "🎲 Server Hop (สุ่ม)",
+        Desc = "วาร์ปไปเซิร์ฟสุ่มที่มีคนว่าง",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            
+            local HttpService = game:GetService("HttpService")
+            local TeleportService = game:GetService("TeleportService")
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+            local PlaceId = game.PlaceId
+            
+            local success, servers = pcall(function()
+                return HttpService:JSONDecode(
+                    game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Desc&limit=100")
+                )
+            end)
+            
+            if not success or not servers or not servers.data then
+                CreateNotification("❌ Error", "ไม่สามารถดึงข้อมูลเซิร์ฟเวอร์ได้", 3)
+                return
+            end
+            
+            local availableServers = {}
+            for _, server in ipairs(servers.data) do
+                if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    table.insert(availableServers, server)
+                end
+            end
+            
+            if #availableServers == 0 then
+                CreateNotification("❌ Error", "ไม่มีเซิร์ฟเวอร์ว่าง", 3)
+                return
+            end
+            
+            local targetServer = availableServers[math.random(1, #availableServers)]
+            
+            CreateNotification("🎲 Server Hop", "กำลังโหลดไปเซิร์ฟสุ่ม...", 3)
+            
+            TeleportService:TeleportToPlaceInstance(PlaceId, targetServer.id, LocalPlayer)
+        end
+    })
 
-local bn = bk:Button({
-    Title = "Complete All Quests",
-    Desc = "Complete all quests",
-    Callback = function()
+    bk:Button({
+        Title = "🟢 Server Hop (ปิงน้อย)",
+        Desc = "วาร์ปไปเซิร์ฟที่ปิงน้อยที่สุด",
+        Callback = function()
+            PlaySound("116394299154002", 0.5)
+            
+            local HttpService = game:GetService("HttpService")
+            local TeleportService = game:GetService("TeleportService")
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+            local PlaceId = game.PlaceId
+            
+            local regionPriority = {
+                "Asia",
+                "Australia",
+                "Europe",
+                "North America",
+                "South America",
+                "Africa"
+            }
+            
+            local success, servers = pcall(function()
+                return HttpService:JSONDecode(
+                    game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Desc&limit=100")
+                )
+            end)
+            
+            if not success or not servers or not servers.data then
+                CreateNotification("❌ Error", "ไม่สามารถดึงข้อมูลเซิร์ฟเวอร์ได้", 3)
+                return
+            end
+            
+            local availableServers = {}
+            for _, server in ipairs(servers.data) do
+                if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    table.insert(availableServers, server)
+                end
+            end
+            
+            if #availableServers == 0 then
+                CreateNotification("❌ Error", "ไม่มีเซิร์ฟเวอร์ว่าง", 3)
+                return
+            end
+            
+            local function getRegionPriority(region)
+                for i, r in ipairs(regionPriority) do
+                    if region and string.find(region, r) then
+                        return i
+                    end
+                end
+                return 999
+            end
+            
+            table.sort(availableServers, function(a, b)
+                local aPriority = getRegionPriority(a.region)
+                local bPriority = getRegionPriority(b.region)
+                if aPriority == bPriority then
+                    return a.playing > b.playing
+                end
+                return aPriority < bPriority
+            end)
+            
+            local targetServer = availableServers[1]
+            local regionName = targetServer.region or "Unknown"
+            
+            CreateNotification("🟢 Server Hop", "กำลังโหลดไปเซิร์ฟ " .. regionName .. " (" .. targetServer.playing .. " คน)...", 3)
+            
+            TeleportService:TeleportToPlaceInstance(PlaceId, targetServer.id, LocalPlayer)
+        end
+    })
+
+    bk:Divider()
+    bk:Section({Title = "Quests"})
+
+    local bn = SafeButton(bk, "Complete All Quests", "Complete all quests", function()
         PlaySound("116394299154002", 0.5)
         task.spawn(function()
             local bn, bo = pcall(function()
@@ -3319,71 +3326,61 @@ local bn = bk:Button({
                 CreateNotification("❌ Error", "Failed to complete quests", 3)
             end
         end)
-    end
-})
-D:Register("CompleteAllQuest", bn)
+    end)
+    if bn and D then pcall(function() D:Register("CompleteAllQuest", bn) end) end
 
-bk:Divider()
-bk:Section({Title = "Performance"})
+    bk:Divider()
+    bk:Section({Title = "Performance"})
 
-local fpsToggle = CreateSoundToggle(bk, "Performance", "Boost FPS", false, function(value)
-    boostFPSEnabled = value
-    if boostFPSEnabled then
-        applyBoostFPS()
-        if A then
-            pcall(function()
-                A:Notify({Title = "✅ Boost FPS Enabled", Duration = 3})
-            end)
+    local fpsToggle = CreateSoundToggle(bk, "Performance", "Boost FPS", false, function(value)
+        boostFPSEnabled = value
+        if boostFPSEnabled then
+            applyBoostFPS()
+            if A then pcall(function() A:Notify({Title = "✅ Boost FPS Enabled", Duration = 3}) end) end
+        else
+            revertBoostFPS()
+            if A then pcall(function() A:Notify({Title = "❌ Boost FPS Disabled", Duration = 3}) end) end
         end
-    else
-        revertBoostFPS()
-        if A then
-            pcall(function()
-                A:Notify({Title = "❌ Boost FPS Disabled", Duration = 3})
-            end)
+    end, "BoostFPS")
+
+    bk:Divider()
+
+    bk:Section({Title = "Config Management"})
+
+    local br = SafeButton(bk, "Save Config", "", function()
+        PlaySound("116394299154002", 0.5)
+        if D and D.Save then
+            pcall(function() D.Save(D) end)
         end
-    end
-end, "BoostFPS")
+    end)
+    if br and D then pcall(function() D:Register("SaveConfig", br) end) end
 
-bk:Divider()
-
-local bo = D.Save
-local bp = D.Delete
-local bq = D.Load
-
-bk:Section({Title = "Config Management"})
-
-local br = bk:Button({
-    Title = "Save Config",
-    Callback = function()
+    local bs = SafeButton(bk, "Delete Config", "", function()
         PlaySound("116394299154002", 0.5)
-        if bo then bo(D) end
-    end
-})
-D:Register("SaveConfig", br)
+        if D and D.Delete then
+            pcall(function() D.Delete(D) end)
+        end
+    end)
+    if bs and D then pcall(function() D:Register("DeleteConfig", bs) end) end
 
-local bs = bk:Button({
-    Title = "Delete Config",
-    Callback = function()
-        PlaySound("116394299154002", 0.5)
-        if bp then bp(D) end
+    if D and D.Load then
+        pcall(function() D.Load(D) end)
     end
-})
-D:Register("DeleteConfig", bs)
-
-if bq then bq(D) end
+end
 
 -- =============================================
 -- Bypass Tweens
 -- =============================================
-local bt = j.tween
-j.tween = function(bu, bv, bw)
-    if bu and bu:IsA("NumberValue") and bw and bw.Value ~= nil then
-        bu.Value = bw.Value
-        return {Cancel = function() end}
+pcall(function()
+    local bt = j.tween
+    j.tween = function(bu, bv, bw)
+        if bu and bu:IsA("NumberValue") and bw and bw.Value ~= nil then
+            bu.Value = bw.Value
+            return {Cancel = function() end}
+        end
+        return bt(bu, bv, bw)
     end
-    return bt(bu, bv, bw)
-end
+end)
 
 -- =============================================
 -- Lock Tool
@@ -3431,3 +3428,8 @@ task.delay(1, function()
 end)
 
 print("🫐 Juix Hub 2.2 - Silent Aim (ล็อคอก), Red Line Lock (ล็อคตาม FOV), FOV (20เหลี่ยม สีรุ้ง), Infinite Fire Rate Ready!")
+
+if not UI_LOADED then
+    print("[Juix] ⚠️ UI Library ไม่โหลด! สคริปต์ยังทำงานอยู่แต่ไม่มีเมนู")
+    print("[Juix] ⚠️ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตหรือ Executor")
+end
