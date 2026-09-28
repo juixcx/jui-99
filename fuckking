@@ -349,7 +349,13 @@ end)
 -- =============================================
 local redLineEnabled = false
 local redLineTarget = nil
-
+-- =============================================
+-- ✅ AUTO SHOT VARIABLES
+-- =============================================
+local autoShotEnabled = false
+local autoShotDelay = 0.1
+local autoShotLastFire = 0
+local autoShotTarget = nil
 -- =============================================
 -- ตัวแปรอื่นๆ
 -- =============================================
