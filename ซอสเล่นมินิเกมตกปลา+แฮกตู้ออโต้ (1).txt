@@ -1,0 +1,188 @@
+local Players             = game:GetService("Players")
+local UserInputService    = game:GetService("UserInputService")
+local RunService          = game:GetService("RunService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local lp     = Players.LocalPlayer
+local pgui   = lp:WaitForChild("PlayerGui")
+local camera = workspace.CurrentCamera
+
+local autoOn    = false
+local fishCount = 0
+local autoToken = 0
+local lastTap   = 0
+
+local active    = false
+local hackCount = 0
+local lastClick = 0
+
+local function getSliderGui()
+    return pgui:FindFirstChild("SliderMinigame")
+end
+
+local function getNeedleAndZone(sliderGui)
+    local needle, zoneStart, zoneEnd = nil, nil, nil
+    local root = sliderGui:FindFirstChildWhichIsA("Frame")
+    if not root then return nil, nil, nil end
+    for _, obj in ipairs(root:GetDescendants()) do
+        if obj:IsA("Frame") then
+            local grad = obj:FindFirstChildOfClass("UIGradient")
+            if grad then
+                for _, kp in ipairs(grad.Color.Keypoints) do
+                    local r,g,b = kp.Value.R, kp.Value.G, kp.Value.B
+                    if g > 0.4 and g > r*1.5 and g > b*1.5 then
+                        zoneStart = obj.AbsolutePosition.X
+                        zoneEnd   = obj.AbsolutePosition.X + obj.AbsoluteSize.X
+                        break
+                    end
+                end
+            end
+        end
+    end
+    for _, obj in ipairs(root:GetDescendants()) do
+        if obj:IsA("Frame") then
+            local s = obj.AbsoluteSize
+            if s.X < 10 and s.X > 0 and s.Y > 15 then
+                needle = obj; break
+            end
+        end
+    end
+    return needle, zoneStart, zoneEnd
+end
+
+local function tapScreen()
+    local vp = camera.ViewportSize
+    local cx, cy = vp.X/2, vp.Y/2
+    pcall(function()
+        VirtualInputManager:SendMouseButtonEvent(cx,cy,0,true,game,0)
+        task.wait(0.05)
+        VirtualInputManager:SendMouseButtonEvent(cx,cy,0,false,game,0)
+    end)
+    pcall(function()
+        VirtualInputManager:SendTouchEvent(0,Enum.UserInputState.Begin,cx,cy)
+        task.wait(0.05)
+        VirtualInputManager:SendTouchEvent(0,Enum.UserInputState.End,cx,cy)
+    end)
+end
+
+local function runAutoFish()
+    autoToken += 1
+    local myToken = autoToken
+    task.spawn(function()
+        while autoOn and autoToken == myToken do
+            local sg = getSliderGui()
+            if sg and sg.Enabled then
+                local needle, zStart, zEnd = getNeedleAndZone(sg)
+                if needle and zStart and zEnd then
+                    local nx = needle.AbsolutePosition.X + needle.AbsoluteSize.X/2
+                    if nx >= zStart and nx <= zEnd then
+                        local now = tick()
+                        if now - lastTap > 0.2 then
+                            lastTap = now
+                            tapScreen()
+                            fishCount += 1
+                        end
+                    end
+                end
+                task.wait(0.03)
+            else
+                task.wait(0.2)
+            end
+        end
+    end)
+end
+
+local function findHackFrames()
+    local sg = getSliderGui()
+    if not sg or not sg.Enabled then return nil, nil end
+    local needle, greenZone = nil, nil
+    for _, v in ipairs(sg:GetDescendants()) do
+        if v:IsA("Frame") and v.Visible then
+            local w = v.AbsoluteSize.X
+            if w > 1 and w < 6 then needle = v end
+            if w > 20 and w < 50 then greenZone = v end
+        end
+    end
+    return needle, greenZone
+end
+
+RunService.Heartbeat:Connect(function()
+    if not active then return end
+    local needle, greenZone = findHackFrames()
+    if not needle or not greenZone then return end
+    local needleX  = needle.AbsolutePosition.X
+    local greenX   = greenZone.AbsolutePosition.X
+    local greenEnd = greenX + greenZone.AbsoluteSize.X
+    if needleX >= greenX and needleX <= greenEnd then
+        local now = tick()
+        if now - lastClick > 0.3 then
+            lastClick = now
+            local cx = needleX + needle.AbsoluteSize.X/2
+            local cy = needle.AbsolutePosition.Y + needle.AbsoluteSize.Y/2
+            VirtualInputManager:SendMouseButtonEvent(cx,cy,0,true,game,1)
+            task.wait(0.05)
+            VirtualInputManager:SendMouseButtonEvent(cx,cy,0,false,game,1)
+            hackCount += 1
+        end
+    end
+end)
+
+-- UI
+if pgui:FindFirstChild("AutoUI") then pgui:FindFirstChild("AutoUI"):Destroy() end
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name="AutoUI"; screenGui.ResetOnSpawn=false
+screenGui.IgnoreGuiInset=true; screenGui.Parent=pgui
+
+local frame = Instance.new("Frame")
+frame.Size=UDim2.new(0,130,0,36)
+frame.Position=UDim2.new(0,10,0,120)
+frame.BackgroundColor3=Color3.fromRGB(10,10,22)
+frame.BorderSizePixel=0; frame.Active=true; frame.Parent=screenGui
+Instance.new("UICorner",frame).CornerRadius=UDim.new(0,18)
+local fs=Instance.new("UIStroke",frame); fs.Color=Color3.fromRGB(0,120,255); fs.Thickness=1.5
+
+local dot=Instance.new("Frame")
+dot.Size=UDim2.new(0,7,0,7); dot.Position=UDim2.new(0,12,0.5,-3.5)
+dot.BackgroundColor3=Color3.fromRGB(80,80,80); dot.BorderSizePixel=0; dot.Parent=frame
+Instance.new("UICorner",dot).CornerRadius=UDim.new(1,0)
+
+local btn=Instance.new("TextButton")
+btn.Size=UDim2.new(1,0,1,0); btn.BackgroundTransparency=1
+btn.Text="ระบบออโต้"; btn.TextColor3=Color3.fromRGB(200,200,220)
+btn.TextSize=13; btn.Font=Enum.Font.GothamBold
+btn.BorderSizePixel=0; btn.Parent=frame
+
+do
+    local dg,ds,sp=false,nil,nil
+    frame.InputBegan:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or
+           i.UserInputType==Enum.UserInputType.Touch then dg=true;ds=i.Position;sp=frame.Position end end)
+    UserInputService.InputChanged:Connect(function(i)
+        if not dg then return end
+        if i.UserInputType==Enum.UserInputType.MouseMovement or
+           i.UserInputType==Enum.UserInputType.Touch then
+            local d=i.Position-ds
+            frame.Position=UDim2.new(sp.X.Scale,sp.X.Offset+d.X,sp.Y.Scale,sp.Y.Offset+d.Y) end end)
+    UserInputService.InputEnded:Connect(function(i)
+        if i.UserInputType==Enum.UserInputType.MouseButton1 or
+           i.UserInputType==Enum.UserInputType.Touch then dg=false end end)
+end
+
+btn.MouseButton1Click:Connect(function()
+    autoOn = not autoOn
+    active = autoOn
+    if autoOn then
+        fishCount=0; hackCount=0
+        runAutoFish()
+        dot.BackgroundColor3=Color3.fromRGB(80,220,100)
+        fs.Color=Color3.fromRGB(80,220,100)
+        btn.TextColor3=Color3.fromRGB(100,255,140)
+    else
+        autoToken+=1
+        dot.BackgroundColor3=Color3.fromRGB(80,80,80)
+        fs.Color=Color3.fromRGB(0,120,255)
+        btn.TextColor3=Color3.fromRGB(200,200,220)
+    end
+end)
+
+print("Auto loaded")
