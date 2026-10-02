@@ -1,4 +1,4 @@
--- ── Vehicle UI JUIX + Fly Car v10 ──────────────────────
+-- ── Vehicle UI JUIX  ──────────────────────
 -- Game Load Guard
 if not game:IsLoaded() then repeat task.wait() until game:IsLoaded() end
 if not (game.PlaceId == 104715542330896 or game.PlaceId == 97556409405464) then return end
