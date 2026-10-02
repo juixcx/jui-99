@@ -692,7 +692,7 @@ local downPressed = false
 -- ── Analog Logic ──
 local analogActive = false
 local inputVector = Vector2.new(0, 0)
-local KNOB_RADIUS = 60
+local KNOB_RADIUS = 80
 
 local function updateKnob(pos)
 	local center = analogGui.AbsolutePosition + analogGui.AbsoluteSize / 2
