@@ -1,0 +1,277 @@
+--[[
+     _   _            ____                _      _
+    | \ | |  ___     |  _ \  _ __   ___  | |__  | |  ___  _ __ ___
+    |  \| | / _ \    | |_) || '__| / _ \ | '_ \ | | / _ \| '_ ` _ \
+    | |\  || (_) |   |  __/ | |   | (_) || |_) || ||  __/| | | | | |
+    |_| \_| \___/    |_|    |_|    \___/ |_.__/ |_| \___||_| |_| |_|
+
+    deobfuscated with no problem <3
+    obfuscator: Luraph v14.8
+    discord.gg/deobf
+]]
+
+if not LPH_OBFUSCATED then
+	LPH_NO_UPVALUES = function(...)
+		return setfenv(function(...) return __forwarded(...) end,
+			setmetatable({__forwarded = ...}, {__index = getfenv((...))}))
+	end
+end
+if not game:IsLoaded() then
+	repeat
+		game.Loaded:Wait()
+	until game:IsLoaded()
+end
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+local GameId = game.GameId
+local Name = MarketplaceService:GetProductInfo(game.PlaceId).Name
+local V = identifyexecutor and identifyexecutor() or "Unknown"
+local HttpGet = game.HttpGet
+local LoadString = loadstring
+local V2 = messageboxasync or messagebox
+local V3 = {["Fallen Survival"] = 3747388906, ["Project Delta"] = 2862098693}
+local V4 = {
+	["Fallen Survival"] = {status = "undetected", executors = {"Wave", "Volt", "Synapse Z", "Madium"}},
+	["Project Delta"] = {status = "undetected", executors = {"Wave", "Volt", "Synapse Z", "Madium"}},
+}
+local V5 = nil
+for Key, Value in next, V3 do
+	if Value == GameId then
+		V5 = Key
+		break
+	end
+end
+local V6 = {
+	kick = function(Arg1)
+		Players.LocalPlayer:Kick(Arg1)
+		task.wait(9000000000)
+	end,
+}
+function V6.message(Arg1, Arg2)
+	local V3, V4 = pcall(V2, Arg1, Arg2, 4)
+	if not V3 then
+		V6.kick("[" .. V .. "] Message execution failed - " .. tostring(Arg1))
+	end
+	return V4
+end
+function V6.fetch(Arg1)
+	local V2, V3 = pcall(HttpGet, game, Arg1)
+	if not V2 or type(V3) ~= "string" then
+		V6.message("Failed to fetch script\nURL: " .. Arg1, "[" .. V .. "]")
+		task.wait(9000000000)
+	end
+	local V4, V5 = LoadString(V3)
+	if not V4 then
+		V6.message("Script parse failed\n" .. tostring(V5), "[" .. V .. "]")
+		task.wait(9000000000)
+	end
+	return V4()
+end
+function V6.clean(Arg1)
+	return Arg1:gsub("[^%w%s]", ""):lower():match("^%s*(.-)%s*$")
+end
+function V6.select(Arg1)
+	if not Arg1 then
+		return nil
+	end
+	local V2 = V6.clean(Arg1)
+	for Key, Value in pairs(V4) do
+		if not V2:find(Key:lower(), 1, true) then
+			continue
+		end
+		if Value.status == "updating" then
+			V6.kick("[" .. V .. "] " .. Key .. " script is updating.")
+		end
+		for _, Value2 in ipairs(Value.executors) do
+			if V:match(Value2) then
+				return Key
+			end
+		end
+		if V6.message("Executor (" .. V .. ") is not officially supported for: " .. Key .. "\nContinue anyway?", "[" .. V .. "] Unsupported executor") ~= 6 then
+			return nil
+		else
+			return Key
+		end
+	end
+	local V3 = V6.clean(Name)
+	if V6.message("No script is officially supported for this game: " .. V3 .. "\nAre you sure you want to load universal?", "[" .. V .. "] Universal") ~= 6 then
+		return nil
+	else
+		return "universal"
+	end
+end
+local V7 = V6.select(V5 or Name)
+if V7 ~= "Fallen Survival" then
+	if V7 ~= "Project Delta" then
+		if V7 == "universal" then
+			V6.fetch("https://raw.githubusercontent.com/ywdsrcfm7w-bit/coincide/refs/heads/main/Games/Universal.lua")
+		end
+	else
+		V6.fetch("https://raw.githubusercontent.com/ywdsrcfm7w-bit/coincide/refs/heads/main/Games/ProjectDelta.lua")
+	end
+else
+	local HttpService = cloneref(game:GetService("HttpService"))
+	local Players2 = cloneref(game:GetService("Players"))
+	local CoreGui = cloneref(game:GetService("CoreGui"))
+	local LocalPlayer = Players2.LocalPlayer
+	getgenv().Kick = function(Arg1, Arg2)
+		LocalPlayer:Kick()
+		task.wait(0.75)
+		CoreGui.RobloxPromptGui.promptOverlay.ErrorPrompt.MessageArea.ErrorFrame.ErrorMessage.Text = Arg1 or "Create a ticket"
+		CoreGui.RobloxPromptGui.promptOverlay.ErrorPrompt.TitleFrame.ErrorTitle.Text = "Coincide | " .. (Arg2 or "Rejoin")
+	end
+	if not game.ReplicatedStorage:FindFirstChild("Modules") or not game.ReplicatedStorage.Modules:FindFirstChild("AssetContainer") then
+		getgenv().Kick("Execute In Fallen", "Error")
+	end
+	if getgenv().BypassLoaded then
+		return getgenv().Kick("Script Already Loaded", "Rejoin")
+	end
+	task.spawn(function()
+		local V = os.time()
+		while task.wait(1) do
+			local V2 = os.time() - V
+			local V3 = math.floor(V2 / 3600)
+			local V4 = math.floor((V2 % 3600) / 60)
+			local V5 = V2 % 60
+			local V6 = string.format("%02d:%02d:%02d", V3, V4, V5)
+			if getgenv().DEBAGSIGMA then
+				rconsolesettitle(" Client Bypass | " .. V6)
+			end
+		end
+	end)
+	if getgenv().DEBAGSIGMA then
+		rconsoleclear()
+		task.wait(3)
+		rconsoleprint("\n")
+		rconsoleprint("@@WHITE@@")
+	end
+	getgenv().real_print = clonefunction(print)
+	getgenv().real_warn = clonefunction(warn)
+	if getgenv().DEBAGSIGMA then
+		getgenv().print = function(...)
+			local V = table.pack(...)
+			local V2 = ""
+			for Index = 1, V.n do
+				V2 = V2 .. tostring(V[Index])
+				if Index < V.n then
+					V2 = V2 .. "\t"
+				end
+			end
+			local V3 = os.date("%H:%M:%S")
+			task.spawn(function()
+				rconsoleprint("@@WHITE@@")
+				rconsoleprint("        [" .. V3 .. "] " .. V2 .. "\n")
+			end)
+		end
+		getgenv().warn = function(...)
+			local V = table.pack(...)
+			local V2 = ""
+			for Index = 1, V.n do
+				V2 = V2 .. tostring(V[Index])
+				if Index < V.n then
+					V2 = V2 .. "\t"
+				end
+			end
+			local V3 = os.date("%H:%M:%S")
+			task.spawn(function()
+				rconsolewarn("        [" .. V3 .. "] " .. V2 .. "\n")
+			end)
+		end
+	end
+	local function Fn(...)
+		if getgenv().DEBAGSIGMA then
+			return getgenv().print(...)
+		else
+			return
+		end
+	end
+	local function Fn2(...)
+		if getgenv().DEBAGSIGMA then
+			return getgenv().warn(...)
+		else
+			return
+		end
+	end
+	;(function()
+		for _, Value in getgc(false) do
+			if typeof(Value) == "function" and not isexecutorclosure(Value) then
+				local V = getinfo(Value)
+				if V.short_src:find("AssetContainer") and V.numparams == 1 and #getprotos(Value) ~= 0 then
+					local V2 = getproto(Value, 1, true)
+					if #V2 ~= 0 then
+						for _2, Value2 in V2 do
+							local V3 = getconstants(Value2)
+							local V4 = getupvalues(Value2)
+							if #V3 ~= 23 then
+								if #V3 ~= 9 or #V4 ~= 3 then
+									local V5 = nil
+									V5 = hookfunction(Value2, (LPH_NO_UPVALUES(function(...)
+										local V = {...}
+										local V2 = V[1]
+										if typeof(V2) ~= "Instance" then
+											if V2 == "" then
+												Fn2("Blocked empty string")
+												return
+											end
+											if typeof(V2) ~= "table" then
+												if #V == 0 then
+													Fn2("Blocked zero arg call")
+													return
+												end
+												for _, Value in V do
+													if typeof(Value) == "function" then
+														Fn2("Blocked detection ->", ...)
+														return
+													end
+												end
+												Fn("Other (1) ->", ...)
+												Fn("Other (1) Args Count ->", #V)
+											else
+												local V3 = HttpService:JSONEncode(V2)
+												if not tostring(V3):find("{") then
+													tostring(V3):find("-")
+												end
+											end
+										end
+										return V5(...)
+									end)))
+								else
+									hookfunction(Value2, (LPH_NO_UPVALUES(function()
+									end)))
+								end
+							else
+								local V6 = nil
+								V6 = hookfunction(Value2, (LPH_NO_UPVALUES(function(...)
+									local V = {...}
+									if #V ~= 1 then
+										Fn("Args Count ->", #V)
+										Fn("Args ->", HttpService:JSONEncode(V))
+									else
+										local V2 = V[1]
+										if typeof(V2) ~= "table" then
+											Fn("Args 1 ->", V2)
+										else
+											Fn("Before Cleaning ->", HttpService:JSONEncode(V2))
+											for Key, Value in V2 do
+												if typeof(Value) == "table" then
+													for Index = #V[1], Key, -1 do
+														V[1][Index] = nil
+													end
+													break
+												end
+											end
+											Fn("After Cleaning ->", HttpService:JSONEncode(V2))
+										end
+									end
+									return V6(...)
+								end)))
+							end
+						end
+					end
+				end
+			end
+		end
+	end)()
+	getgenv().BypassLoaded = true
+	V6.fetch("https://raw.githubusercontent.com/ywdsrcfm7w-bit/coincide/refs/heads/main/Games/Fallen.lua")
+end
