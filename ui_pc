@@ -16,11 +16,11 @@ local HWID = AnalyticsService:GetClientId()
 local SaveFileName = "JuixHub_KeyData.json"
 local ExpiredListFileName = "JuixHub_ExpiredKeys.json"
 
--- ==================== Discord Webhook URLs ====================
+-- 
 local KeyUsageWebhook = "https://discord.com/api/webhooks/1543597763357315082/OjRpUlN0UWnyXDsKLdkf4rqzeiejmKXVtbao3RyFtGtV4Ny0pKTkLaSLUIidUTqwNqTT"
 local KeyExpiredWebhook = "https://discord.com/api/webhooks/1543598661773168671/3IP2bVmfmvdi8cXwnKfRbwWmLI1ye91vT3EIC8UDfzRok7ePoQrckMEHNV4xoqvRFnCU"
 
--- ==================== ฟังก์ชันส่งข้อมูลไป Discord ====================
+-- 
 local function SendToDiscord(webhookURL, title, description, color, fields)
     local embed = {
         title = title,
@@ -270,7 +270,7 @@ local function BlacklistKey(key)
     SaveData(ExpiredListFileName, expiredData)
 end
 
--- ==================== ฟังก์ชันแสดงหน้าต่างโหลดสคริปต์ (มุมขวาล่าง) ====================
+-- 
 local function ShowLoadingNotification()
     local NotifGui = Instance.new("ScreenGui")
     NotifGui.Name = "JuixHub_Notification"
