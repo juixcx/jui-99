@@ -1389,6 +1389,7 @@ local function _ae2ded()
             aim = false,
             trigger = false,
             autoFire = false,
+            autoFireMode = "FOV",
             autoReload = false,
             includeBots = true,
             onlyBots = false,
@@ -1500,6 +1501,10 @@ local function _ae2ded()
             local _d11b55 = _022e8d.ViewportSize / 2
             local _1505cd, _9b3ee2, _c8c9cd, _86731e, _32b29e = nil, nil, nil, nil, math.huge
             local _4aa833 = type(_92b48a) == "table" and _92b48a or _8bfcc8.models
+            local _fovLimit = _3ee5bc
+            if _fovLimit == nil or _fovLimit >= math.huge then
+                _fovLimit = math.huge
+            end
             for _2eb959, _f0b15a in ipairs(_4aa833) do
                 local _9776d6 = type(_92b48a) == "table" and _f0b15a or nil
                 local _978759 = _9776d6 and _9776d6.Model or _f0b15a
@@ -1516,7 +1521,7 @@ local function _ae2ded()
                 end
                 local _24bc3c, _52c3f9 = _022e8d:WorldToViewportPoint(_f3edaa)
                 local _b251e1 = (Vector2.new(_24bc3c.X, _24bc3c.Y) - _d11b55).Magnitude
-                if _52c3f9 and _24bc3c.Z > 0 and _b251e1 <= _3ee5bc and _f1e139(_f3edaa, _022e8d.CFrame.Position) then
+                if _52c3f9 and _24bc3c.Z > 0 and _b251e1 <= _fovLimit and _f1e139(_f3edaa, _022e8d.CFrame.Position) then
                     if _a2bca8 and _978759 == self.target then
                         return _978759, _3308b0, _f3edaa, _9776d6
                     end
@@ -1601,7 +1606,11 @@ local function _ae2ded()
                 return nil
             end
             _8bfcc8:refresh()
-            local _da03f1, _f9a0b5, _8ca982, _41ca7d = self:pick(self.fov, self.lock, _44bd8a, _d353ed, _e80c48)
+            local _dirFov = self.fov
+            if self.autoFire and self.autoFireMode == "360" then
+                _dirFov = math.huge
+            end
+            local _da03f1, _f9a0b5, _8ca982, _41ca7d = self:pick(_dirFov, self.lock, _44bd8a, _d353ed, _e80c48)
             self.target, self.part = _da03f1, _f9a0b5
             if not _da03f1 then
                 return nil
@@ -1616,7 +1625,11 @@ local function _ae2ded()
                 return nil
             end
             local _72f040, _10c68b = _c665ab:WorldToViewportPoint(_415088)
-            if not _10c68b or _72f040.Z <= 0 or (Vector2.new(_72f040.X, _72f040.Y) - _c665ab.ViewportSize / 2).Magnitude > self.fov then
+            local _viewFov = self.fov
+            if self.autoFire and self.autoFireMode == "360" then
+                _viewFov = math.huge
+            end
+            if not _10c68b or _72f040.Z <= 0 or (Vector2.new(_72f040.X, _72f040.Y) - _c665ab.ViewportSize / 2).Magnitude > _viewFov then
                 return nil
             end
             if not _f1e139(_415088, _dced28) then
@@ -1922,7 +1935,17 @@ local function _ae2ded()
             if _6da8a1.trigger then
                 _1089f1 = _1089f1 or (_6ccc2a and _6da8a1.target ~= nil)
             end
-            if not _6da8a1.silent or not _6da8a1.shotReady then
+            -- Auto Fire 360 mode: bypass FOV checks completely
+            local _is360 = _6da8a1.autoFire and _6da8a1.autoFireMode == "360"
+            if _is360 then
+                local _fovA, _fovB = _6da8a1:pick(math.huge, false)
+                if _fovA then
+                    _6da8a1.target, _6da8a1.part = _fovA, _fovB
+                    _1089f1 = true
+                else
+                    _1089f1 = false
+                end
+            elseif not _6da8a1.silent or not _6da8a1.shotReady then
                 _1089f1 = _1089f1 and _c9e50f ~= nil
                 if _1089f1 then
                     _6da8a1.target, _6da8a1.part = _c9e50f, _9e478f
@@ -2034,6 +2057,9 @@ local function _ae2ded()
         _129422("Bots Only", "onlyBots", false)
         _129422("Keep Aim Target", "lock", true)
         _129422("Auto Fire", "autoFire", false)
+        _d50893.Combat:AddDropdown("Auto Fire Mode", { "FOV", "360" }, "FOV", function(_afMode)
+            _6da8a1.autoFireMode = _afMode
+        end)
         _129422("Auto Reload", "autoReload", false)
         _129422("No Recoil", "noRecoil", false)
         _2bd818("Reload Below %", "reloadAt", 0, 90, 0)
