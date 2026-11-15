@@ -1,7 +1,7 @@
 -- Deobfuscated + reformatted (string escapes decoded; locals with recoverable names renamed).
 -- Remaining _xxxxxx names are original obfuscated identifiers whose real names are not recoverable.
 
-local Zephyr = {
+local JUIX = {
     alive = true,
     errors = {},
     connections = {},
@@ -12,17 +12,17 @@ local Zephyr = {
 }
 local _835e9a, _72fa62 = task, require
 
-function Zephyr.clearNotice()
-    if Zephyr.noticeGui then
+function JUIX.clearNotice()
+    if JUIX.noticeGui then
         pcall(function()
-            Zephyr.noticeGui:Destroy()
+            JUIX.noticeGui:Destroy()
         end)
-        Zephyr.noticeGui = nil
+        JUIX.noticeGui = nil
     end
 end
 
-function Zephyr.notice(_0148bd, _63afc6)
-    Zephyr.clearNotice()
+function JUIX.notice(_0148bd, _63afc6)
+    JUIX.clearNotice()
     pcall(function()
         local _ce5c5e = game:GetService("Players").LocalPlayer
         local _bb0d3a = _ce5c5e and _ce5c5e:FindFirstChild("PlayerGui")
@@ -30,8 +30,8 @@ function Zephyr.notice(_0148bd, _63afc6)
             return
         end
         local screenGui = Instance.new("ScreenGui")
-        Zephyr.noticeGui = screenGui
-        screenGui.Name, screenGui.ResetOnSpawn, screenGui.DisplayOrder = "ZephyrStartupError", false, 10000
+        JUIX.noticeGui = screenGui
+        screenGui.Name, screenGui.ResetOnSpawn, screenGui.DisplayOrder = "JUIXStartupError", false, 10000
         local frame = Instance.new("Frame")
         frame.AnchorPoint, frame.Position = Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 40)
         frame.Size, frame.BackgroundColor3 = UDim2.new(0.9, 0, 0, 180), Color3.fromRGB(18, 21, 24)
@@ -42,7 +42,7 @@ function Zephyr.notice(_0148bd, _63afc6)
         uICorner.CornerRadius, uICorner.Parent = UDim.new(0, 7), frame
         local textLabel = Instance.new("TextLabel")
         textLabel.BackgroundTransparency, textLabel.Font, textLabel.TextSize = 1, Enum.Font.GothamBold, 16
-        textLabel.TextColor3, textLabel.Text = Color3.fromRGB(112, 218, 181), "ZEPHYR · " .. _0148bd
+        textLabel.TextColor3, textLabel.Text = Color3.fromRGB(112, 218, 181), "JUIX · " .. _0148bd
         textLabel.Position, textLabel.Size = UDim2.fromOffset(14, 12), UDim2.new(1, -28, 0, 22)
         textLabel.TextXAlignment, textLabel.Parent = Enum.TextXAlignment.Left, frame
         local textLabel2 = Instance.new("TextLabel")
@@ -67,61 +67,61 @@ function Zephyr.notice(_0148bd, _63afc6)
             setclipboard(tostring(_63afc6))
             _61d2a9.Text = "Copied"
         end)
-        _a2e8af("Close", 0.5, Zephyr.clearNotice)
+        _a2e8af("Close", 0.5, JUIX.clearNotice)
         screenGui.Parent = _bb0d3a
     end)
 end
 
-function Zephyr.record(_00cc0f, _3fc50e)
+function JUIX.record(_00cc0f, _3fc50e)
     local _a4dbf9, _35ed27 = pcall(tostring, _3fc50e)
     _35ed27 = _a4dbf9 and _35ed27:sub(1, 600) or "Unprintable error"
-    local _480112 = Zephyr.errors[#Zephyr.errors]
+    local _480112 = JUIX.errors[#JUIX.errors]
     if _480112 and _480112.context == _00cc0f and _480112.message == _35ed27 then
         _480112.count += 1
         return
     end
-    if #Zephyr.errors >= 30 then
-        table.remove(Zephyr.errors, 1)
+    if #JUIX.errors >= 30 then
+        table.remove(JUIX.errors, 1)
     end
-    Zephyr.errors[#Zephyr.errors + 1] = { context = _00cc0f, message = _35ed27, count = 1 }
-    if Zephyr.status then
-        pcall(Zephyr.status, _00cc0f)
+    JUIX.errors[#JUIX.errors + 1] = { context = _00cc0f, message = _35ed27, count = 1 }
+    if JUIX.status then
+        pcall(JUIX.status, _00cc0f)
     end
 end
 
-function Zephyr.before(_e82773)
-    if not Zephyr.alive then
+function JUIX.before(_e82773)
+    if not JUIX.alive then
         return
     end
     local _e76465 = coroutine.running()
-    local _4906cb = Zephyr.noWait[_e76465]
-    Zephyr.noWait[_e76465] = true
+    local _4906cb = JUIX.noWait[_e76465]
+    JUIX.noWait[_e76465] = true
     local _3a2ea5, _210e8d = pcall(_e82773)
-    Zephyr.noWait[_e76465] = _4906cb
+    JUIX.noWait[_e76465] = _4906cb
     if not _3a2ea5 then
-        Zephyr.record("Optional game customization", _210e8d)
+        JUIX.record("Optional game customization", _210e8d)
     end
 end
 
-function Zephyr.guard(_4a4f7b, _c2feb6)
+function JUIX.guard(_4a4f7b, _c2feb6)
     local _1ed792, _cac94f, _534562 = false, 0, 0
     return function(...)
-        if not Zephyr.alive or _1ed792 or os.clock() < _534562 then
+        if not JUIX.alive or _1ed792 or os.clock() < _534562 then
             return
         end
         _1ed792 = true
         local _7c2c96 = coroutine.running()
-        local _4e3fd2 = Zephyr.threads[_7c2c96]
-        Zephyr.threads[_7c2c96] = true
+        local _4e3fd2 = JUIX.threads[_7c2c96]
+        JUIX.threads[_7c2c96] = true
         local _3697f3 = table.pack(pcall(_4a4f7b, ...))
         if not _4e3fd2 then
-            Zephyr.threads[_7c2c96] = nil
+            JUIX.threads[_7c2c96] = nil
         end
         _1ed792 = false
         if not _3697f3[1] then
             _cac94f = math.min(_cac94f + 1, 5)
             _534562 = os.clock() + math.min(5, 0.25 * 2 ^ (_cac94f - 1))
-            Zephyr.record(_c2feb6 or "Callback", _3697f3[2])
+            JUIX.record(_c2feb6 or "Callback", _3697f3[2])
             return
         end
         _cac94f = 0
@@ -129,61 +129,61 @@ function Zephyr.guard(_4a4f7b, _c2feb6)
     end
 end
 
-function Zephyr.connect(_0ff8f9, _e5a7d6)
-    if not Zephyr.alive then
+function JUIX.connect(_0ff8f9, _e5a7d6)
+    if not JUIX.alive then
         return nil
     end
-    local _c3971f = _0ff8f9:Connect(Zephyr.guard(_e5a7d6, "Signal"))
-    Zephyr.connections[_c3971f] = true
-    Zephyr.connectionCount = (Zephyr.connectionCount or 0) + 1
-    if Zephyr.connectionCount % 64 == 0 then
-        for _ae5c1c in pairs(Zephyr.connections) do
+    local _c3971f = _0ff8f9:Connect(JUIX.guard(_e5a7d6, "Signal"))
+    JUIX.connections[_c3971f] = true
+    JUIX.connectionCount = (JUIX.connectionCount or 0) + 1
+    if JUIX.connectionCount % 64 == 0 then
+        for _ae5c1c in pairs(JUIX.connections) do
             if not _ae5c1c.Connected then
-                Zephyr.connections[_ae5c1c] = nil
+                JUIX.connections[_ae5c1c] = nil
             end
         end
     end
     return _c3971f
 end
 
-function Zephyr.cleanup(_453c01)
-    table.insert(Zephyr.cleanups, _453c01)
+function JUIX.cleanup(_453c01)
+    table.insert(JUIX.cleanups, _453c01)
 end
 
-function Zephyr.setup(_5efde6, _32b308, ...)
-    local _308ca4, _481b64 = table.clone(Zephyr.connections), table.clone(Zephyr.threads)
+function JUIX.setup(_5efde6, _32b308, ...)
+    local _308ca4, _481b64 = table.clone(JUIX.connections), table.clone(JUIX.threads)
     local _bcfb48 = {}
-    if Zephyr.ui then
-        for _fd81e5, _666b8b in ipairs({ Zephyr.ui.Options, Zephyr.ui.Toggles }) do
+    if JUIX.ui then
+        for _fd81e5, _666b8b in ipairs({ JUIX.ui.Options, JUIX.ui.Toggles }) do
             for _472200, _e8880b in pairs(_666b8b) do
                 _bcfb48[_e8880b] = true
             end
         end
     end
-    local _39f26f = #Zephyr.cleanups
+    local _39f26f = #JUIX.cleanups
     local _36be7f = table.pack(pcall(_32b308, ...))
     if _36be7f[1] then
         return table.unpack(_36be7f, 2, _36be7f.n)
     end
-    for _258570 = #Zephyr.cleanups, _39f26f + 1, -1 do
-        pcall(table.remove(Zephyr.cleanups, _258570))
+    for _258570 = #JUIX.cleanups, _39f26f + 1, -1 do
+        pcall(table.remove, JUIX.cleanups, _258570)
     end
-    for _4ab4b7 in pairs(Zephyr.connections) do
+    for _4ab4b7 in pairs(JUIX.connections) do
         if not _308ca4[_4ab4b7] then
             pcall(function()
                 _4ab4b7:Disconnect()
             end)
-            Zephyr.connections[_4ab4b7] = nil
+            JUIX.connections[_4ab4b7] = nil
         end
     end
-    for _25823c in pairs(Zephyr.threads) do
+    for _25823c in pairs(JUIX.threads) do
         if not _481b64[_25823c] then
             pcall(_835e9a.cancel, _25823c)
-            Zephyr.threads[_25823c] = nil
+            JUIX.threads[_25823c] = nil
         end
     end
-    if Zephyr.ui then
-        for _d523d2, _9bb015 in ipairs({ Zephyr.ui.Options, Zephyr.ui.Toggles }) do
+    if JUIX.ui then
+        for _d523d2, _9bb015 in ipairs({ JUIX.ui.Options, JUIX.ui.Toggles }) do
             for _1a1e4e, _b0d427 in pairs(_9bb015) do
                 if not _bcfb48[_b0d427] then
                     _b0d427.Callback, _b0d427.Changed, _b0d427.Clicked = nil, nil, nil
@@ -194,59 +194,59 @@ function Zephyr.setup(_5efde6, _32b308, ...)
             end
         end
     end
-    Zephyr.record(_5efde6, _36be7f[2])
-    Zephyr.notice(_5efde6 .. " unavailable", _36be7f[2])
+    JUIX.record(_5efde6, _36be7f[2])
+    JUIX.notice(_5efde6 .. " unavailable", _36be7f[2])
 end
 
-function Zephyr.render(_d2572b, _e3d6ae, _e35550, _fa3a05)
-    local _7f960b = Zephyr.guard(_fa3a05, _e3d6ae)
+function JUIX.render(_d2572b, _e3d6ae, _e35550, _fa3a05)
+    local _7f960b = JUIX.guard(_fa3a05, _e3d6ae)
     local _aebcbd = pcall(_d2572b.BindToRenderStep, _d2572b, _e3d6ae, _e35550, _7f960b)
     if _aebcbd then
-        Zephyr.cleanup(function()
+        JUIX.cleanup(function()
             pcall(_d2572b.UnbindFromRenderStep, _d2572b, _e3d6ae)
         end)
     else
-        Zephyr.connect(_d2572b.RenderStepped, _7f960b)
+        JUIX.connect(_d2572b.RenderStepped, _7f960b)
     end
 end
 
-function Zephyr.stop()
-    Zephyr.clearNotice()
-    if not Zephyr.alive then
+function JUIX.stop()
+    JUIX.clearNotice()
+    if not JUIX.alive then
         return
     end
-    Zephyr.alive = false
-    for _5a50bf = #Zephyr.cleanups, 1, -1 do
-        pcall(Zephyr.cleanups[_5a50bf])
+    JUIX.alive = false
+    for _5a50bf = #JUIX.cleanups, 1, -1 do
+        pcall(JUIX.cleanups[_5a50bf])
     end
-    table.clear(Zephyr.cleanups)
-    for _ea9421 in pairs(Zephyr.connections) do
+    table.clear(JUIX.cleanups)
+    for _ea9421 in pairs(JUIX.connections) do
         pcall(function()
             _ea9421:Disconnect()
         end)
     end
-    table.clear(Zephyr.connections)
+    table.clear(JUIX.connections)
     local _1c60ee = coroutine.running()
-    for _6d9d47 in pairs(Zephyr.threads) do
+    for _6d9d47 in pairs(JUIX.threads) do
         if _6d9d47 ~= _1c60ee then
             pcall(_835e9a.cancel, _6d9d47)
         end
     end
-    table.clear(Zephyr.threads)
+    table.clear(JUIX.threads)
 end
-Zephyr.unload = Zephyr.stop
+JUIX.unload = JUIX.stop
 local _a6f819 = setmetatable({}, { __index = _835e9a })
 
 local function _d97ea5(_df24f6, _3fc391, _8d8aee, ...)
     local _2c85e4 = table.pack(...)
     local _1754d9 = coroutine.create(function()
-        Zephyr.guard(_8d8aee, "Background task")(table.unpack(_2c85e4, 1, _2c85e4.n))
-        Zephyr.threads[coroutine.running()] = nil
+        JUIX.guard(_8d8aee, "Background task")(table.unpack(_2c85e4, 1, _2c85e4.n))
+        JUIX.threads[coroutine.running()] = nil
     end)
-    if not Zephyr.alive then
+    if not JUIX.alive then
         return _1754d9
     end
-    Zephyr.threads[_1754d9] = true
+    JUIX.threads[_1754d9] = true
     if _3fc391 then
         _835e9a[_df24f6](_3fc391, _1754d9)
     else
@@ -268,14 +268,14 @@ function _a6f819.delay(_350129, _622516, ...)
 end
 
 function _a6f819.cancel(_877bc3)
-    Zephyr.threads[_877bc3] = nil
+    JUIX.threads[_877bc3] = nil
     pcall(_835e9a.cancel, _877bc3)
 end
 
-function Zephyr.waitFor(_291624, _67c5ed)
+function JUIX.waitFor(_291624, _67c5ed)
     local _e81490 = os.clock() + (_67c5ed or 120)
     repeat
-        if not Zephyr.alive then
+        if not JUIX.alive then
             return nil
         end
         local _a7ff5d, _e2d165 = pcall(_291624)
@@ -284,15 +284,15 @@ function Zephyr.waitFor(_291624, _67c5ed)
         end
         _835e9a.wait(0.2)
     until os.clock() >= _e81490
-    Zephyr.record("Readiness", "Dependency did not become ready before timeout")
+    JUIX.record("Readiness", "Dependency did not become ready before timeout")
     return nil
 end
 
-function Zephyr.module(_00d92b)
-    if not Zephyr.alive or typeof(_00d92b) ~= "Instance" or not _00d92b:IsA("ModuleScript") or not _00d92b.Parent then
+function JUIX.module(_00d92b)
+    if not JUIX.alive or typeof(_00d92b) ~= "Instance" or not _00d92b:IsA("ModuleScript") or not _00d92b.Parent then
         return nil
     end
-    local _7af745 = Zephyr.modules[_00d92b]
+    local _7af745 = JUIX.modules[_00d92b]
     if _7af745 and _7af745.ready then
         return _7af745.value
     end
@@ -300,21 +300,21 @@ function Zephyr.module(_00d92b)
         return nil
     end
     _7af745 = { pending = true, retryAt = 0 }
-    Zephyr.modules[_00d92b] = _7af745
+    JUIX.modules[_00d92b] = _7af745
     _a6f819.spawn(function()
         local _b51962 = coroutine.running()
-        local _1a9684 = Zephyr.threads[_b51962]
-        Zephyr.threads[_b51962] = nil
+        local _1a9684 = JUIX.threads[_b51962]
+        JUIX.threads[_b51962] = nil
         local _969319, _f2a61a = pcall(_72fa62, _00d92b)
-        if Zephyr.alive then
-            Zephyr.threads[_b51962] = _1a9684
+        if JUIX.alive then
+            JUIX.threads[_b51962] = _1a9684
         end
         _7af745.pending = false
         if _969319 and _f2a61a ~= nil then
             _7af745.ready, _7af745.value = true, _f2a61a
         else
             _7af745.retryAt = os.clock() + 5
-            Zephyr.record("Module", _f2a61a or "Module returned no value")
+            JUIX.record("Module", _f2a61a or "Module returned no value")
         end
     end)
     if _7af745.ready then
@@ -324,15 +324,15 @@ function Zephyr.module(_00d92b)
 end
 
 local function _6250e7(_7464d3)
-    if Zephyr.noWait[coroutine.running()] then
-        local _b39986 = Zephyr.module(_7464d3)
+    if JUIX.noWait[coroutine.running()] then
+        local _b39986 = JUIX.module(_7464d3)
         if _b39986 == nil then
             error("Optional module still loading", 0)
         end
         return _b39986
     end
-    local _2653ad = Zephyr.waitFor(function()
-        local _2003eb = Zephyr.module(_7464d3)
+    local _2653ad = JUIX.waitFor(function()
+        local _2003eb = JUIX.module(_7464d3)
         if _2003eb ~= nil then
             return { _2003eb }
         end
@@ -347,10 +347,10 @@ local function _2c8ac0(...)
 end
 
 local function _b85978(...)
-    Zephyr.record("Handled failure", select(1, ...))
+    JUIX.record("Handled failure", select(1, ...))
 end
 
-function Zephyr.download(_79aa41, _daa493)
+function JUIX.download(_79aa41, _daa493)
     local _da0296
     for _73c8f4 = 1, _daa493 and 3 or 1 do
         local _4415dd, _13f966
@@ -361,13 +361,13 @@ function Zephyr.download(_79aa41, _daa493)
             end
             _4415dd = true
         end)
-        Zephyr.waitFor(function()
+        JUIX.waitFor(function()
             return _4415dd
         end, 10)
         if not _4415dd then
             _a6f819.cancel(_0e72d0)
         end
-        if not Zephyr.alive then
+        if not JUIX.alive then
             return nil
         end
         if _13f966 then
@@ -383,7 +383,7 @@ function Zephyr.download(_79aa41, _daa493)
     end
     local _67690a, _a632de = loadstring(_da0296)
     if not _67690a then
-        Zephyr.record("Download", _a632de)
+        JUIX.record("Download", _a632de)
         return nil
     end
     if type(setfenv) == "function" and type(getfenv) == "function" then
@@ -391,7 +391,7 @@ function Zephyr.download(_79aa41, _daa493)
     end
     local _dc300b, _b9773f = pcall(_67690a)
     if not _dc300b then
-        Zephyr.record("Library", _b9773f)
+        JUIX.record("Library", _b9773f)
         return nil
     end
     return _b9773f
@@ -400,7 +400,7 @@ end
 local function _ae2ded()
     do
         local Players = game:GetService("Players")
-        local _6c03ce = Zephyr.waitFor(function()
+        local _6c03ce = JUIX.waitFor(function()
             return Players.LocalPlayer
         end)
         if not _6c03ce then
@@ -413,36 +413,36 @@ local function _ae2ded()
                 _7632e8 = _8856dc
             end
         end
-        local _74e7af = _7632e8.__ZEPHYR_HYPERSHOT_RUNTIME
+        local _74e7af = _7632e8.__JUIX_HYPERSHOT_RUNTIME
         if type(_74e7af) == "table" and type(_74e7af.unload) == "function" then
             pcall(_74e7af.unload)
         end
-        _7632e8.__ZEPHYR_HYPERSHOT_RUNTIME = Zephyr
+        _7632e8.__JUIX_HYPERSHOT_RUNTIME = JUIX
     end
-    if not Zephyr.waitFor(function()
+    if not JUIX.waitFor(function()
             return game:IsLoaded()
         end) then
         return
     end
     local _135c18 = game:GetService("Players").LocalPlayer
-    if not Zephyr.waitFor(function()
+    if not JUIX.waitFor(function()
             return _135c18:FindFirstChild("PlayerGui") and workspace.CurrentCamera
         end) then
         return
     end
     local _da29d9 = "https://raw.githubusercontent.com/deividcomsono/Obsidian/refs/heads/main/"
-    local _05012a = Zephyr.download(_da29d9 .. "Library.lua", true)
+    local _05012a = JUIX.download(_da29d9 .. "Library.lua", true)
     if type(_05012a) ~= "table" or type(_05012a.CreateWindow) ~= "function" then
         return
     end
-    Zephyr.ui = _05012a
-    Zephyr.unload = function()
+    JUIX.ui = _05012a
+    JUIX.unload = function()
         pcall(_05012a.Unload, _05012a)
-        Zephyr.stop()
+        JUIX.stop()
     end
     local _ddf2ac = nil
     pcall(function()
-        _ddf2ac = Zephyr.download(_da29d9 .. "addons/ThemeManager.lua", false)
+        _ddf2ac = JUIX.download(_da29d9 .. "addons/ThemeManager.lua", false)
     end)
     local _f9f603 = "rbxthumb://type=Asset&id=89616857457936&w=420&h=420"
     local _a9570f = {
@@ -456,7 +456,7 @@ local function _ae2ded()
         _05012a.Scheme[_4d199b] = _4bc153
     end
     local _34ea2c = _05012a:CreateWindow({
-        Title = "ZEPHYR",
+        Title = "JUIX",
         Footer = "HYPERSHOT",
         Icon = _f9f603,
         IconSize = UDim2.fromOffset(34, 34),
@@ -493,7 +493,7 @@ local function _ae2ded()
     local _2b23a5 = Workspace2.CurrentCamera
     local _011f12 = nil
     local _b352d4
-    Zephyr.connect(Workspace2:GetPropertyChangedSignal("CurrentCamera"), function()
+    JUIX.connect(Workspace2:GetPropertyChangedSignal("CurrentCamera"), function()
         _2b23a5 = Workspace2.CurrentCamera
     end)
     local function _bb3345()
@@ -505,7 +505,7 @@ local function _ae2ded()
         if _b352d4 == _fadf06 and _011f12 then
             return _011f12
         end
-        local _6ae300 = Zephyr.module(_fadf06)
+        local _6ae300 = JUIX.module(_fadf06)
         if type(_6ae300) == "table" then
             _b352d4 = _fadf06
             _011f12 = _6ae300
@@ -570,18 +570,18 @@ local function _ae2ded()
         return 0
     end
     local function _ce51d6(_cffaf4, ...)
-        if not Zephyr.alive or type(_cffaf4) ~= "function" then
+        if not JUIX.alive or type(_cffaf4) ~= "function" then
             return false
         end
         local _46e558 = coroutine.running()
-        local _de940c = Zephyr.threads[_46e558]
-        Zephyr.threads[_46e558] = true
+        local _de940c = JUIX.threads[_46e558]
+        JUIX.threads[_46e558] = true
         local _f30be7, _fdf41b = pcall(_cffaf4, ...)
         if not _de940c then
-            Zephyr.threads[_46e558] = nil
+            JUIX.threads[_46e558] = nil
         end
         if not _f30be7 then
-            Zephyr.record("UI callback", _fdf41b)
+            JUIX.record("UI callback", _fdf41b)
         end
         return _f30be7, _fdf41b
     end
@@ -734,7 +734,7 @@ local function _ae2ded()
             })
             local _f0ec8e = false
             _78af33:OnChanged(function()
-                if _f0ec8e or not Zephyr.alive then
+                if _f0ec8e or not JUIX.alive then
                     return
                 end
                 local _f460b1 = _78af33.Value
@@ -842,7 +842,7 @@ local function _ae2ded()
     if _ddf2ac then
         pcall(function()
             _ddf2ac:SetLibrary(_05012a)
-            _ddf2ac:SetFolder("Zephyr/Hypershot")
+            _ddf2ac:SetFolder("JUIX/Hypershot")
             local _7e1702 = table.clone(_a9570f)
             _7e1702.FontFace = Enum.Font.Gotham
             _ddf2ac:SetDefaultTheme(_7e1702)
@@ -851,7 +851,7 @@ local function _ae2ded()
         end)
     end
     _0676e7.UI:GetGroup("Appearance"):AddButton({
-        Text = "Zephyr theme",
+        Text = "JUIX theme",
         Func = function()
             for _630da3,
             _4f258f in pairs(_a9570f) do
@@ -884,7 +884,7 @@ local function _ae2ded()
             end)
             _4269fb = false
         end
-        _0676e7.UI:GetGroup("Menu"):AddLabel({ Text = "Press Insert to hide/show Zephyr. You can change the key below.", DoesWrap = true, })
+        _0676e7.UI:GetGroup("Menu"):AddLabel({ Text = "Press Insert to hide/show JUIX. You can change the key below.", DoesWrap = true, })
         _8c88e4 = _0676e7.UI:AddToggle("Menu Visible", true, function(_db531b)
             if _4269fb then
                 return
@@ -913,7 +913,7 @@ local function _ae2ded()
             end)
         end
         _05012a.ToggleKeybind = Enum.KeyCode.Insert
-        Zephyr.connect(UserInputService.InputBegan, function(_42aa5d, _3e0e24)
+        JUIX.connect(UserInputService.InputBegan, function(_42aa5d, _3e0e24)
             if _3e0e24 or UserInputService:GetFocusedTextBox() then
                 return
             end
@@ -937,7 +937,7 @@ local function _ae2ded()
         if not _e30fe1 then
             return nil
         end
-        return Zephyr.waitFor(function()
+        return JUIX.waitFor(function()
             return _e30fe1:FindFirstChild(_5465d9)
         end, _234e87 or 20)
     end
@@ -959,7 +959,7 @@ local function _ae2ded()
         return nil
     end
     local function _18451e()
-        return Zephyr.module(_ed860f())
+        return JUIX.module(_ed860f())
     end
     local function _556e18()
         local _6dbc4c = _557f65(_a4a272, "PlayerGui")
@@ -1131,19 +1131,19 @@ local function _ae2ded()
         _57cd19:refresh(true)
         return _57cd19
     end
-    local _42d27d = _d6ab88(Workspace2, Players2, _a4a272, Zephyr, _bb3345)
+    local _42d27d = _d6ab88(Workspace2, Players2, _a4a272, JUIX, _bb3345)
     local function _d6f4f3()
         return _42d27d:localCharacter()
     end
     do
-        local _28ced8 = "ZephyrHypershot_" .. tostring(_a4a272.UserId) .. ".json"
+        local _28ced8 = "JUIXHypershot_" .. tostring(_a4a272.UserId) .. ".json"
         local _78298e, _a01d7e, _df2eac = false, false, 0
         local _480dad, _16f4dd = {}, {}
         local _c457b9, _58c1e2
         local _9a945e = _0676e7.UI:GetGroup("Preferences")
         local _9eca06 = _9a945e:AddLabel({ Text = "Settings save automatically", DoesWrap = true })
         local _73a170 = _9a945e:AddLabel({ Text = "Runtime ready", DoesWrap = true })
-        Zephyr.status = function(_0772b9)
+        JUIX.status = function(_0772b9)
             _73a170:SetText("Runtime: " .. tostring(_0772b9) .. " unavailable")
         end
         local _f5bf82 = type(readfile) == "function" and type(writefile) == "function"
@@ -1205,7 +1205,7 @@ local function _ae2ded()
                         end
                     end)
                 end
-                _b85978("[Zephyr Hypershot] Settings: " .. tostring(_90008c))
+                _b85978("[JUIX Hypershot] Settings: " .. tostring(_90008c))
             end
         end
         _cadcca = function()
@@ -1313,9 +1313,9 @@ local function _ae2ded()
             _a01d7e = true
             _df2eac += 1
             local _efd570 = table.pack(pcall(_dfdc18, _d345cb, ...))
-            Zephyr.stop()
+            JUIX.stop()
             if not _efd570[1] then
-                Zephyr.record("Unload", _efd570[2])
+                JUIX.record("Unload", _efd570[2])
                 return
             end
             return table.unpack(_efd570, 2, _efd570.n)
@@ -1329,7 +1329,7 @@ local function _ae2ded()
             _0f51fa = true
             return
         end
-        local _f8df39 = "Zephyr"
+        local _f8df39 = "JUIX"
         local _24c3cd = _f8df39 .. "/HypershotPurplePreset.json"
         local _835d33 = 2
         local _5e7fa8 = not isfile(_24c3cd)
@@ -1423,7 +1423,7 @@ local function _ae2ded()
             end
         end
         local screenGui2 = Instance.new("ScreenGui")
-        screenGui2.Name, screenGui2.IgnoreGuiInset, screenGui2.ResetOnSpawn = "ZephyrAim", true, false
+        screenGui2.Name, screenGui2.IgnoreGuiInset, screenGui2.ResetOnSpawn = "JUIXAim", true, false
         screenGui2.Parent = _87335e:FindFirstChild("PlayerGui")
         _517c86.cleanup(function()
             screenGui2:Destroy()
@@ -1930,7 +1930,7 @@ local function _ae2ded()
             end
             _6da8a1:operate(_acfdbe, _1089f1, os.clock())
         end)
-        _517c86.render(_6d6693, "ZephyrHypershotAim", Enum.RenderPriority.Camera.Value + 2, function(_7ad975)
+        _517c86.render(_6d6693, "JUIXHypershotAim", Enum.RenderPriority.Camera.Value + 2, function(_7ad975)
             local _e4616c = _502fe4.CurrentCamera
             if not _e4616c then
                 return
@@ -2057,8 +2057,8 @@ local function _ae2ded()
         end)
         return _6da8a1
     end
-    local _474740 = Zephyr.setup("Combat", _621cbe, {
-        Runtime = Zephyr,
+    local _474740 = JUIX.setup("Combat", _621cbe, {
+        Runtime = JUIX,
         Targets = _42d27d,
         Tabs = _0676e7,
         Workspace = Workspace2,
@@ -2126,7 +2126,7 @@ local function _ae2ded()
             end
             if not _0b9a41 then
                 _0b9a41 = Instance.new("ScreenGui")
-                _0b9a41.Name, _0b9a41.IgnoreGuiInset, _0b9a41.ResetOnSpawn = "ZephyrESP", true, false
+                _0b9a41.Name, _0b9a41.IgnoreGuiInset, _0b9a41.ResetOnSpawn = "JUIXESP", true, false
                 _0b9a41.DisplayOrder = 5
                 _0b9a41.Parent = _8f10fa:FindFirstChild("PlayerGui")
             end
@@ -2240,7 +2240,7 @@ local function _ae2ded()
         end)
         return _678340
     end
-    local _803194 = _2908f1(Zephyr, _a4a272, Drawing)
+    local _803194 = _2908f1(JUIX, _a4a272, Drawing)
     local _b8ed0d = {
         Objects = {},
         Settings = {
@@ -2461,7 +2461,7 @@ local function _ae2ded()
             _2bcf88.Skeleton[_8c36cf] = _238df9
         end
         _2bcf88.Highlight = Instance.new("Highlight")
-        _2bcf88.Highlight.Name = "ZephyrEntityESP"
+        _2bcf88.Highlight.Name = "JUIXEntityESP"
         _2bcf88.Highlight.Adornee, _2bcf88.Highlight.Enabled = _c6b3b4, false
         _2bcf88.Highlight.Parent = _a4a272:FindFirstChild("PlayerGui")
         self.Objects[_c6b3b4] = _2bcf88
@@ -2792,7 +2792,7 @@ local function _ae2ded()
         end
     end
     local _fae9b6, _c730fb, _2ac747 = 0, 0, false
-    Zephyr.render(RunService2, "ZephyrHypershotESP", Enum.RenderPriority.Camera.Value + 10, function(_f6fa5f)
+    JUIX.render(RunService2, "JUIXHypershotESP", Enum.RenderPriority.Camera.Value + 10, function(_f6fa5f)
         if not _b8ed0d:AnyEnabled() then
             if _2ac747 then
                 for _cd482f in pairs(_b8ed0d.Objects) do
@@ -2820,12 +2820,12 @@ local function _ae2ded()
             local _cec386, _4efc98 = pcall(_b8ed0d.Update, _b8ed0d, _e15bb8, _378325, _77c3ec)
             if not _cec386 then
                 _55408f(_378325)
-                Zephyr.record("ESP", _4efc98)
+                JUIX.record("ESP", _4efc98)
             end
         end
         _803194.flush()
     end)
-    Zephyr.cleanup(function()
+    JUIX.cleanup(function()
         for _853408 in pairs(_b8ed0d.Objects) do
             _b8ed0d:Remove(_853408)
         end
@@ -2961,7 +2961,7 @@ local function _ae2ded()
             return
         end
         _a6f819.wait(0.1)
-        if not _ea1364 or not Zephyr.alive or not _52ac6d.Parent or _43bcad[_52ac6d] then
+        if not _ea1364 or not JUIX.alive or not _52ac6d.Parent or _43bcad[_52ac6d] then
             return
         end
         local _18ed35 = _52ac6d:FindFirstChild("Main")
@@ -3014,7 +3014,7 @@ local function _ae2ded()
         _de6286.TextScaled = true
         _de6286.Text = "speed: --"
         _43bcad[_52ac6d] = { hl = highlight, bb = billboardGui, main = _18ed35 }
-        Zephyr.connect(_52ac6d.AncestryChanged, function()
+        JUIX.connect(_52ac6d.AncestryChanged, function()
             if not _52ac6d:IsDescendantOf(Workspace2) then
                 _43bcad[_52ac6d] = nil
             end
@@ -3033,19 +3033,19 @@ local function _ae2ded()
         end
         _43bcad[_684664] = nil
     end
-    Zephyr.cleanup(function()
+    JUIX.cleanup(function()
         _ea1364 = false
         for _d881b9 in pairs(_43bcad) do
             _c3adb8(_d881b9)
         end
     end)
-    Zephyr.connect(Workspace2.ChildAdded, function(_75bb27)
+    JUIX.connect(Workspace2.ChildAdded, function(_75bb27)
         if _ea1364 and _d9d263(_75bb27) then
             _a6f819.spawn(_c8825d, _75bb27)
         end
     end)
     local _d8dbb3 = 0
-    Zephyr.connect(RunService2.Heartbeat, function()
+    JUIX.connect(RunService2.Heartbeat, function()
         if not _ea1364 then
             return
         end
@@ -3153,7 +3153,7 @@ local function _ae2ded()
             _d606ba.Text = "-- studs"
         end
         _64b4a1[_8e6ed0] = { hl = highlight2, bb = _90dd5b, primary = _565d7b }
-        Zephyr.connect(_8e6ed0.AncestryChanged, function()
+        JUIX.connect(_8e6ed0.AncestryChanged, function()
             if not _8e6ed0:IsDescendantOf(Workspace2) then
                 _64b4a1[_8e6ed0] = nil
             end
@@ -3172,19 +3172,19 @@ local function _ae2ded()
         end
         _64b4a1[_a68c68] = nil
     end
-    Zephyr.cleanup(function()
+    JUIX.cleanup(function()
         _e761f9 = false
         for _fefff6 in pairs(_64b4a1) do
             _0bdf23(_fefff6)
         end
     end)
-    Zephyr.connect(Workspace2.ChildAdded, function(_9ce9cc)
+    JUIX.connect(Workspace2.ChildAdded, function(_9ce9cc)
         if _e761f9 and _9ce9cc.Name:match("__Truck$") then
             _e426a8(_9ce9cc)
         end
     end)
     local _c3816e = 0
-    Zephyr.connect(RunService2.Heartbeat, function()
+    JUIX.connect(RunService2.Heartbeat, function()
         if not _e761f9 then
             return
         end
@@ -3287,7 +3287,7 @@ local function _ae2ded()
             end
         end
         _b858e9()
-        local _b6584a = Zephyr.connect(_a9b648:GetPropertyChangedSignal(_2c73bf), _b858e9)
+        local _b6584a = JUIX.connect(_a9b648:GetPropertyChangedSignal(_2c73bf), _b858e9)
         table.insert(_ff4413, _b6584a)
         _0b2bf8[_a9b648] = true
     end
@@ -3302,7 +3302,7 @@ local function _ae2ded()
             return
         end
         _119404(_4913ab)
-        table.insert(_ff4413, Zephyr.connect(_4913ab.DescendantAdded, _61da30))
+        table.insert(_ff4413, JUIX.connect(_4913ab.DescendantAdded, _61da30))
     end
     _0676e7.Player:AddToggle("Name Changer", false, function(_96d508)
         _aaf9f8 = _96d508
@@ -3364,20 +3364,20 @@ local function _ae2ded()
             _edbe26()
             local _60050a = Workspace2:FindFirstChild("IgnoreThese")
             if _60050a then
-                _a7c4f0 = Zephyr.connect(_60050a.ChildAdded, function(_980da9)
+                _a7c4f0 = JUIX.connect(_60050a.ChildAdded, function(_980da9)
                     if _980da9.Name == "MyArms" then
                         _a6f819.defer(_edbe26)
                     end
                 end)
             else
-                _a7c4f0 = Zephyr.connect(Workspace2.ChildAdded, function(_95cda3)
+                _a7c4f0 = JUIX.connect(Workspace2.ChildAdded, function(_95cda3)
                     if _95cda3.Name == "IgnoreThese" then
                         _edcdf0(true)
                     end
                 end)
             end
         end
-        Zephyr.cleanup(function()
+        JUIX.cleanup(function()
             _edcdf0(false)
         end)
         _0676e7.Player:AddToggle("Arm Changer", _75858c, _edcdf0)
@@ -3470,8 +3470,8 @@ local function _ae2ded()
         _9981ff.Tabs.Misc:GetGroup("Utility"):AddLabel({ Text = "Also collects spawned event tokens and trait rolls.", DoesWrap = true })
         return _521884
     end
-    Zephyr.setup("Pickups", _6df50c, {
-        Runtime = Zephyr,
+    JUIX.setup("Pickups", _6df50c, {
+        Runtime = JUIX,
         Targets = _42d27d,
         Tabs = _0676e7,
         Workspace = Workspace2,
@@ -3479,7 +3479,7 @@ local function _ae2ded()
         getShared = _18451e,
         getController = function()
             local _f06a15 = _556e18()
-            return _f06a15 and Zephyr.module(_f06a15:FindFirstChild("Controller"))
+            return _f06a15 and JUIX.module(_f06a15:FindFirstChild("Controller"))
         end,
     })
     pcall(function()
@@ -3707,7 +3707,7 @@ local function _ae2ded()
                 end
             end
             _d57359(_32c838)
-            _2c8ac0("[Zephyr HYPERSHOT] Sniper targets: " .. _32c838)
+            _2c8ac0("[JUIX HYPERSHOT] Sniper targets: " .. _32c838)
         end
         local function _8940b8()
             if _ab4245 then
@@ -3841,11 +3841,11 @@ local function _ae2ded()
                         end)
                         if _c8e6d6 and _5c15d9 then
                             _c92ba0[_c2980d] = _1110f6
-                            _2c8ac0(("[Zephyr HYPERSHOT] Sniped %s."):format(_54b88a))
+                            _2c8ac0(("[JUIX HYPERSHOT] Sniped %s."):format(_54b88a))
                             _a6f819.wait(0.4)
                         else
                             local _3dac2f = tostring(_b03f18 or "")
-                            _2c8ac0(("[Zephyr HYPERSHOT] Failed to snipe %s: %s"):format(_54b88a, _3dac2f))
+                            _2c8ac0(("[JUIX HYPERSHOT] Failed to snipe %s: %s"):format(_54b88a, _3dac2f))
                             if _5f2482 or _3dac2f:lower():find("sold") or _3dac2f:lower():find("stock") then
                                 _700be6[_c2980d] = _1110f6
                             elseif _3dac2f:lower():find("enough") or _3dac2f:lower():find("afford") then
@@ -3917,7 +3917,7 @@ local function _ae2ded()
                         end
                     end
                 end
-                _2c8ac0("[Zephyr HYPERSHOT] Event reward claim pass finished.")
+                _2c8ac0("[JUIX HYPERSHOT] Event reward claim pass finished.")
             end)
         end)
         _0676e7.Misc:AddButton("Claim Battlepass Rewards", "Claims current pass rewards where available", function()
@@ -3942,7 +3942,7 @@ local function _ae2ded()
                         end
                     end
                 end
-                _2c8ac0("[Zephyr HYPERSHOT] Battlepass claim pass finished.")
+                _2c8ac0("[JUIX HYPERSHOT] Battlepass claim pass finished.")
             end)
         end)
         _0676e7.Misc:AddButton("Spin Wheel", "Uses the current wheel remote", function()
@@ -4025,7 +4025,7 @@ local function _ae2ded()
                     return
                 end
                 local _446b58 = 0
-                _2da3f3 = Zephyr.connect(RunService2.RenderStepped, function(_f7d6ef)
+                _2da3f3 = JUIX.connect(RunService2.RenderStepped, function(_f7d6ef)
                     if not _7523aa then
                         return
                     end
@@ -4287,12 +4287,12 @@ local function _ae2ded()
                 if not _488e8e or type(_488e8e.HasPassive) ~= "function" then
                     return false
                 end
-                if _488e8e._ZephyrOriginalHasPassive then
+                if _488e8e._JUIXOriginalHasPassive then
                     return true
                 end
-                _488e8e._ZephyrOriginalHasPassive = _488e8e.HasPassive
+                _488e8e._JUIXOriginalHasPassive = _488e8e.HasPassive
                 _488e8e.HasPassive = function(_228445, _1460a8, _36f936, ...)
-                    local _192036, _c160f9 = pcall(_488e8e._ZephyrOriginalHasPassive, _228445, _1460a8, _36f936, ...)
+                    local _192036, _c160f9 = pcall(_488e8e._JUIXOriginalHasPassive, _228445, _1460a8, _36f936, ...)
                     if _192036 and _c160f9 then
                         return _c160f9
                     end
@@ -4580,15 +4580,15 @@ local function _ae2ded()
             if type(_b64116) ~= "table" or type(_b64116.GetRandomKillVFX) ~= "function" then
                 return
             end
-            if _b64116._ZephyrOriginalGetRandomKillVFX then
+            if _b64116._JUIXOriginalGetRandomKillVFX then
                 return
             end
-            _b64116._ZephyrOriginalGetRandomKillVFX = _b64116.GetRandomKillVFX
+            _b64116._JUIXOriginalGetRandomKillVFX = _b64116.GetRandomKillVFX
             _b64116.GetRandomKillVFX = function(_64260f, ...)
                 if _66b266 and _4df73e and _4df73e ~= "" then
                     return _4df73e
                 end
-                return _b64116._ZephyrOriginalGetRandomKillVFX(_64260f, ...)
+                return _b64116._JUIXOriginalGetRandomKillVFX(_64260f, ...)
             end
         end
         local function _3e4432()
@@ -4704,7 +4704,7 @@ local function _ae2ded()
                 if _c2f911 or not _b066f8 or not _b066f8:IsA("RemoteEvent") then
                     return
                 end
-                _c2f911 = Zephyr.connect(_b066f8.OnClientEvent, function(_813fbc, ...)
+                _c2f911 = JUIX.connect(_b066f8.OnClientEvent, function(_813fbc, ...)
                     if _66b266 then
                         local _e922b1 = { ... }
                         pcall(function()
@@ -4715,7 +4715,7 @@ local function _ae2ded()
             end
             _aac049(_c6f8a0:FindFirstChild("DeathEffect"))
             if not _c2f911 and not _a42836 then
-                _a42836 = Zephyr.connect(_c6f8a0.ChildAdded, function(_f89b31)
+                _a42836 = JUIX.connect(_c6f8a0.ChildAdded, function(_f89b31)
                     if _f89b31.Name == "DeathEffect" then
                         _aac049(_f89b31)
                     end
@@ -5246,8 +5246,8 @@ local function _ae2ded()
         _56d964.cleanup(_b2c27a)
         return _25bfc7
     end
-    _5ef368 = Zephyr.setup("Skins", _aad0e2, {
-        Runtime = Zephyr,
+    _5ef368 = JUIX.setup("Skins", _aad0e2, {
+        Runtime = JUIX,
         tab = _0676e7.Unlocks,
         player = _9225bc,
         storage = ReplicatedStorage,
@@ -5398,23 +5398,23 @@ local function _ae2ded()
         local function _0e7d58()
             local _653470 = _557f65(ReplicatedStorage, "Modules")
             local _8b319d = _b269b6(_653470 and _557f65(_653470, "MenuMod"))
-            if type(_8b319d) == "table" and type(_8b319d.IsWeaponUnlocked) == "function" and not _8b319d._ZephyrOriginalIsWeaponUnlocked then
-                _8b319d._ZephyrOriginalIsWeaponUnlocked = _8b319d.IsWeaponUnlocked
+            if type(_8b319d) == "table" and type(_8b319d.IsWeaponUnlocked) == "function" and not _8b319d._JUIXOriginalIsWeaponUnlocked then
+                _8b319d._JUIXOriginalIsWeaponUnlocked = _8b319d.IsWeaponUnlocked
                 _8b319d.IsWeaponUnlocked = function(_62b159, _e5e589, _236ba9, ...)
                     if _094632 and type(_e5e589) == "string" then
                         return true
                     end
-                    return _8b319d._ZephyrOriginalIsWeaponUnlocked(_62b159, _e5e589, _236ba9, ...)
+                    return _8b319d._JUIXOriginalIsWeaponUnlocked(_62b159, _e5e589, _236ba9, ...)
                 end
             end
             local _8b127b = _bb3345()
-            if type(_8b127b) == "table" and type(_8b127b.IsAdminUnlockAllLoadout) == "function" and not _8b127b._ZephyrOriginalIsAdminUnlockAllLoadout then
-                _8b127b._ZephyrOriginalIsAdminUnlockAllLoadout = _8b127b.IsAdminUnlockAllLoadout
+            if type(_8b127b) == "table" and type(_8b127b.IsAdminUnlockAllLoadout) == "function" and not _8b127b._JUIXOriginalIsAdminUnlockAllLoadout then
+                _8b127b._JUIXOriginalIsAdminUnlockAllLoadout = _8b127b.IsAdminUnlockAllLoadout
                 _8b127b.IsAdminUnlockAllLoadout = function(_1563f2, ...)
                     if _094632 then
                         return true
                     end
-                    return _8b127b._ZephyrOriginalIsAdminUnlockAllLoadout(_1563f2, ...)
+                    return _8b127b._JUIXOriginalIsAdminUnlockAllLoadout(_1563f2, ...)
                 end
             end
         end
@@ -5462,7 +5462,7 @@ local function _ae2ded()
                     if _92605a:IsA("ModuleScript") then
                         local _d91f36, _5fd2df = pcall(_6250e7, _92605a)
                         if _d91f36 and _5fd2df then
-                            Zephyr.connect(RunService2.RenderStepped, function()
+                            JUIX.connect(RunService2.RenderStepped, function()
                                 pcall(function()
                                     _5fd2df.BulletColor = ColorSequence.new(Color3.fromHSV(tick() % 1, 1, 1))
                                 end)
@@ -5608,7 +5608,7 @@ local function _ae2ded()
             table.insert(_3f7a7a, part3)
             table.insert(_3f7a7a, _14f492)
         end
-        Zephyr.connect(RunService2.Heartbeat, function()
+        JUIX.connect(RunService2.Heartbeat, function()
             if _08b984 and not Lighting:FindFirstChildOfClass("Sky") then
                 _f8231e()
             end
@@ -5727,7 +5727,7 @@ local function _ae2ded()
         end)
     end)
     local function _92b86c(_dc7bbb, _38fe46, _fbb2dd, _6deeb9)
-        local _1755bf = { title = "=ZEPHYR=" }
+        local _1755bf = { title = "=JUIX=" }
         local _82b23f = {}
         local _66523b, _b82cda, _a09e67 = nil, 0, 0
         local function _2d2de1(_6d0d6a, _5bc38a)
@@ -5800,7 +5800,7 @@ local function _ae2ded()
             end
             if not _66523b then
                 _66523b = _a8f22f:Clone()
-                _66523b.Name = "ZephyrStreak"
+                _66523b.Name = "JUIXStreak"
                 _66523b.AnchorPoint = Vector2.new(1, 0)
                 _66523b.Position = UDim2.fromScale(0.96, 0.22)
                 _66523b.Size = UDim2.fromScale(0.18, 0.22)
@@ -5870,7 +5870,7 @@ local function _ae2ded()
             if not _378bd0 or _378bd0 > 24 then
                 return
             end
-            _1755bf.title = _6d8700 ~= "" and _6d8700 or "=ZEPHYR="
+            _1755bf.title = _6d8700 ~= "" and _6d8700 or "=JUIX="
             _1755bf:refresh()
         end)
         _38fe46:AddInput("Level Changer", "Level, blank to reset", function(_5ada64)
@@ -5892,7 +5892,7 @@ local function _ae2ded()
         end)
         return _1755bf
     end
-    Zephyr.setup("Profile", _92b86c, Zephyr, _0676e7.Unlocks, _9225bc, RunService2.Heartbeat)
+    JUIX.setup("Profile", _92b86c, JUIX, _0676e7.Unlocks, _9225bc, RunService2.Heartbeat)
     do
         local _2f5961 = false
         local _e9cb2e = setmetatable({}, { __mode = "k" })
@@ -5924,7 +5924,7 @@ local function _ae2ded()
             end
             _885afc = _18d2b9
             if _885afc then
-                _f492b9 = Zephyr.connect(_885afc.DescendantAdded, _a5ccfa)
+                _f492b9 = JUIX.connect(_885afc.DescendantAdded, _a5ccfa)
                 if _2f5961 then
                     for _476fc7, _4a9095 in ipairs(_885afc:GetDescendants()) do
                         _a5ccfa(_4a9095)
@@ -5933,7 +5933,7 @@ local function _ae2ded()
             end
         end
         _3d6263()
-        Zephyr.connect(Workspace2.ChildAdded, _3d6263)
+        JUIX.connect(Workspace2.ChildAdded, _3d6263)
         _0676e7.Visuals:AddToggle("Low Effects", false, function(_d8d5a0)
             _2f5961 = _d8d5a0
             if not _d8d5a0 then
@@ -5950,7 +5950,7 @@ local function _ae2ded()
                 end
             end
         end)
-        Zephyr.cleanup(_c59697)
+        JUIX.cleanup(_c59697)
     end
     pcall(function()
         local _9277c6 = nil
@@ -5974,7 +5974,7 @@ local function _ae2ded()
                 if _adba45 then
                     _adba45:Disconnect()
                 end
-                _adba45 = Zephyr.connect(RunService3.RenderStepped, function()
+                _adba45 = JUIX.connect(RunService3.RenderStepped, function()
                     if not _7e0b6f then
                         return
                     end
@@ -5989,7 +5989,7 @@ local function _ae2ded()
                 _285938(_4cb189)
             end
         end)
-        Zephyr.connect(workspace:GetPropertyChangedSignal("CurrentCamera"), function()
+        JUIX.connect(workspace:GetPropertyChangedSignal("CurrentCamera"), function()
             _a6f819.wait(0.1)
             if _7e0b6f then
                 _285938(_4cb189)
@@ -6009,7 +6009,7 @@ local function _ae2ded()
                 workspace.CurrentCamera.FieldOfView = 70
             else
                 _285938(_4cb189)
-                _9277c6 = Zephyr.connect(workspace.CurrentCamera:GetPropertyChangedSignal("FieldOfView"), function()
+                _9277c6 = JUIX.connect(workspace.CurrentCamera:GetPropertyChangedSignal("FieldOfView"), function()
                     if _7e0b6f and _4cb189 <= 120 and workspace.CurrentCamera.FieldOfView ~= _4cb189 then
                         workspace.CurrentCamera.FieldOfView = _4cb189
                     end
@@ -6041,7 +6041,7 @@ local function _ae2ded()
                 return
             end
             _ac1921[_3c28e9] = _3c28e9:FindFirstChild("Main")
-            Zephyr.connect(_3c28e9.AncestryChanged, function()
+            JUIX.connect(_3c28e9.AncestryChanged, function()
                 if not _3c28e9:IsDescendantOf(Workspace2) then
                     _ac1921[_3c28e9] = nil
                 end
@@ -6052,10 +6052,10 @@ local function _ae2ded()
                 _a6f819.spawn(_057958, _58f3c5)
             end
         end
-        Zephyr.connect(Workspace2.ChildAdded, function(_77db5e)
+        JUIX.connect(Workspace2.ChildAdded, function(_77db5e)
             _a6f819.spawn(_057958, _77db5e)
         end)
-        Zephyr.connect(RunService2.Heartbeat, function()
+        JUIX.connect(RunService2.Heartbeat, function()
             if not _070ce1 then
                 return
             end
@@ -6085,7 +6085,7 @@ local function _ae2ded()
         _0676e7.Player:AddToggle("Auto Respawn", false, function(_e54dbb)
             _5ca2f0 = _e54dbb
         end)
-        Zephyr.connect(RunService2.Heartbeat, function()
+        JUIX.connect(RunService2.Heartbeat, function()
             if not _5ca2f0 or os.clock() < _9ff046 then
                 return
             end
@@ -6104,7 +6104,7 @@ local function _ae2ded()
             local _d47cbf = _9225bc:FindFirstChild("PlayerGui")
             local _a0aa72 = _d47cbf and _d47cbf:FindFirstChild("MenuUI")
             local _685b51 = _a0aa72 and _a0aa72:FindFirstChild("MenuLocal")
-            local _0112c1 = _685b51 and Zephyr.module(_685b51:FindFirstChild("HomeFrame"))
+            local _0112c1 = _685b51 and JUIX.module(_685b51:FindFirstChild("HomeFrame"))
             if _0112c1 and type(_0112c1.TrySpawn) == "function" then
                 _0112c1:TrySpawn(false)
             end
@@ -6292,8 +6292,8 @@ local function _ae2ded()
         end)
         return _35cc1c
     end
-    Zephyr.setup("Movement", _e3f0eb, {
-        runtime = Zephyr,
+    JUIX.setup("Movement", _e3f0eb, {
+        runtime = JUIX,
         tab = _0676e7.Player,
         player = _9225bc,
         storage = ReplicatedStorage,
@@ -6308,21 +6308,21 @@ local function _ae2ded()
     if _e7a129 then
         local _0e70a6, _8427d8 = pcall(_e7a129)
         if not _0e70a6 then
-            _b85978("[Zephyr Hypershot] Could not restore settings: " .. tostring(_8427d8))
+            _b85978("[JUIX Hypershot] Could not restore settings: " .. tostring(_8427d8))
         end
     end
-    Zephyr.ready = true
+    JUIX.ready = true
 end
 local _f50d15, _aad217 = pcall(_ae2ded)
 if not _f50d15 then
-    Zephyr.record("Initialization", _aad217)
+    JUIX.record("Initialization", _aad217)
 end
-if not _f50d15 or not Zephyr.ready then
-    if Zephyr.unload then
-        pcall(Zephyr.unload)
+if not _f50d15 or not JUIX.ready then
+    if JUIX.unload then
+        pcall(JUIX.unload)
     else
-        Zephyr.stop()
+        JUIX.stop()
     end
-    local _710e29 = Zephyr.errors[#Zephyr.errors]
-    Zephyr.notice("Couldn't load", _710e29 and (_710e29.context .. ": " .. _710e29.message) or "Menu download failed. Try again in a moment.")
+    local _710e29 = JUIX.errors[#JUIX.errors]
+    JUIX.notice("Couldn't load", _710e29 and (_710e29.context .. ": " .. _710e29.message) or "Menu download failed. Try again in a moment.")
 end
